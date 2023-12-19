@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:axalta/exceptions/user_exceptions.dart';
 import 'package:axalta/services/auth_service.dart';

@@ -1,6 +1,8 @@
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/weight_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 
 class PigmentView extends StatefulWidget {
   const PigmentView({super.key});
@@ -17,6 +19,7 @@ class _PigmentViewState extends State<PigmentView> {
   late final TextEditingController _sequenceNo;
   late final TextEditingController _weight;
   late final TextEditingController _qrCode;
+  bool _isExtra = false;
 
   @override
   void initState() {
@@ -42,6 +45,8 @@ class _PigmentViewState extends State<PigmentView> {
     super.dispose();
   }
 
+  final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,54 +60,69 @@ class _PigmentViewState extends State<PigmentView> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: 150,
-                  color: Colors.grey[400],
+                child: FormBuilder(
+                  key: _formKey,
+                  // height: 150,
+                  //color: Colors.grey[400],
                   child: Column(
                     children: [
-                      TextField(
+                      FormBuilderTextField(
+                        name: 'lineNo',
                         controller: _lineNo,
                         keyboardType: TextInputType.text,
                         maxLines: null,
                         decoration: const InputDecoration(
-                            hintText: "Hat No",
+                            labelText: "Hat No",
                             contentPadding: EdgeInsets.all(8)),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                        ]),
                       ),
-                      TextField(
+                      FormBuilderTextField(
+                        name: 'batchNo',
                         controller: _bacthNo,
                         keyboardType: TextInputType.text,
                         maxLines: null,
                         decoration: const InputDecoration(
-                            hintText: "Batch No",
+                            labelText: "Batch No",
                             contentPadding: EdgeInsets.all(8)),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                        ]),
                       ),
-                      TextField(
+                      FormBuilderTextField(
+                        name: 'mixNo',
                         controller: _mixNo,
                         keyboardType: TextInputType.text,
                         maxLines: null,
                         decoration: const InputDecoration(
-                            hintText: "Mix No",
+                            labelText: "Mix No",
                             contentPadding: EdgeInsets.all(8)),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: 50,
-                  color: Colors.grey[400],
-                  child: Column(
-                    children: [
-                      TextField(
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                        ]),
+                      ),
+                      FormBuilderTextField(
+                        name: "qrCode",
                         controller: _qrCode,
                         keyboardType: TextInputType.text,
                         maxLines: null,
                         decoration: const InputDecoration(
-                            hintText: "Ürün Barkodu Okut",
+                            labelText: "Ürün Barkodu Okut",
                             contentPadding: EdgeInsets.all(8)),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                        ]),
                       ),
+                      CheckboxListTile(
+                        title: const Text('İlave Tartım'),
+                        value: _isExtra,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            _isExtra = value ?? false;
+                          });
+                        },
+                      )
                     ],
                   ),
                 ),
@@ -129,19 +149,21 @@ class _PigmentViewState extends State<PigmentView> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          WeighingProductDto dto = WeighingProductDto(
-                              id: 1,
-                              lineNumber: int.parse(_lineNo.text),
-                              batchNo: _bacthNo.text,
-                              mixNo: int.parse(_mixNo.text),
-                              isExtra: false,
-                              sequenceNumber: 2,
-                              productNumber: _qrCode.text,
-                              weight: "22",
-                              isDone: true);
+                          if (_formKey.currentState!.saveAndValidate()) {
+                            // Form is valid, perform your actions here
+                            WeighingProductDto dto = WeighingProductDto(
+                                id: 1,
+                                lineNumber: int.parse(_lineNo.text),
+                                batchNo: _bacthNo.text,
+                                mixNo: int.parse(_mixNo.text),
+                                isExtra: _isExtra,
+                                sequenceNumber: 2,
+                                productNumber: _qrCode.text,
+                                weight: "22",
+                                isDone: false);
 
-                          await ApiService().postData(dto);
-                          // Üçüncü butonun işlevi
+                            recordWeight(dto);
+                          }
                         },
                         child: const Text('Ok'),
                       ),
@@ -203,17 +225,21 @@ class _PigmentViewState extends State<PigmentView> {
       ),
     );
   }
-}
 
-Future createNewWeighing() async {}
-List<DataRow> getTableRowData() {
-  // Tablo verilerini döndüren bir fonksiyon
-  List<DataRow> rows = [
-    DataRow(cells: [
-      DataCell(Text('John', style: TextStyle(fontSize: 10))),
-      DataCell(Text('Doe', style: TextStyle(fontSize: 10))),
-      DataCell(Text('30', style: TextStyle(fontSize: 10))),
-    ])
-  ];
-  return rows;
+  WeighingProductDto lastRecord = WeighingProductDto.empty();
+
+  List<DataRow> getTableRowData() {
+    return lastRecord.getRows();
+  }
+
+  Future recordWeight(WeighingProductDto dto) async {
+    _qrCode.clear();
+
+    var mock = await ApiService().postData(dto);
+    setState(() {
+      lastRecord = mock;
+    });
+  }
+
+  createNewWeighing() {}
 }

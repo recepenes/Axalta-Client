@@ -1,0 +1,1 @@
+class WeighingNotRecorded implements Exception {}

@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:axalta/exceptions/weighing_exceptions.dart';
 import 'package:flutter/material.dart';
 
 class WeighingProductDto {
@@ -25,7 +26,18 @@ class WeighingProductDto {
     required this.isDone,
   });
 
-  Future<List<DataRow>> getRows() async {
+  WeighingProductDto.empty()
+      : id = 0,
+        lineNumber = 0,
+        batchNo = "",
+        mixNo = 0,
+        isExtra = false,
+        sequenceNumber = 0,
+        productNumber = "Bekleniyor",
+        weight = "Bekleniyor",
+        isDone = false;
+
+  List<DataRow> getRows() {
     return [
       DataRow(cells: [
         DataCell(
@@ -34,5 +46,24 @@ class WeighingProductDto {
         DataCell(Text(weight, style: TextStyle(fontSize: 10))),
       ])
     ];
+  }
+
+  factory WeighingProductDto.fromJson(Map<String, dynamic> json) {
+    final weighingProduct = WeighingProductDto(
+      id: json['id'] ?? 0,
+      lineNumber: json['lineNumber'],
+      batchNo: json['batchNo'],
+      mixNo: json['mixNo'],
+      isExtra: json['isExtra'],
+      sequenceNumber: json['sequenceNumber'],
+      productNumber: json['productNumber'],
+      weight: json['weight'],
+      isDone: json['isDone'],
+    );
+    if (weighingProduct.weight.isNotEmpty) {
+      return weighingProduct;
+    } else {
+      throw WeighingNotRecorded();
+    }
   }
 }
