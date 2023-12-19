@@ -8,8 +8,6 @@ import 'package:axalta/widgets/cellphone_field.dart';
 import 'package:axalta/widgets/form_error_widget.dart';
 import 'package:axalta/widgets/success_dialog.dart';
 
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-
 import 'bloc/register_bloc.dart';
 
 class RegisterScreen extends StatelessWidget {

@@ -7,8 +7,10 @@ import 'dart:developer' as devtools show log;
 
 class ApiService {
   // Örnek bir POST isteği
-  Future<void> postData(WeighingProductDto dto) async {
+  Future<WeighingProductDto> postData(WeighingProductDto dto) async {
     //final Uri uri = Uri.parse('$apiUrl/weighing'); // Gerçek endpoint'i ekleyin
+
+    WeighingProductDto weighingProduct = WeighingProductDto.empty();
 
     const path = "weighing";
     Uri uri = Uri(
@@ -41,14 +43,22 @@ class ApiService {
         },
       );
 
-      // Başarılı ise
+      String jsonStr = response.body;
+
+      Map<String, dynamic> jsonMap = json.decode(jsonStr);
+
+      weighingProduct = WeighingProductDto.fromJson(jsonMap);
+
       if (response.statusCode == 200) {
+        return weighingProduct;
       } else {
         devtools.log('Kayıt alınırken bir hata oluştu: ${response.statusCode}');
         devtools.log(response.body);
+        return weighingProduct;
       }
     } catch (e) {
       devtools.log("Kayıt alınırken bir hata oluştu: " + e.toString());
     }
+    return weighingProduct;
   }
 }

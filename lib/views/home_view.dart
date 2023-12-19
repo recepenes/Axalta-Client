@@ -1,7 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:math';
-
 import 'package:axalta/blocs/auth/auth_bloc.dart';
 import 'package:axalta/constants/routes.dart';
 import 'package:axalta/enums/menu_action.dart';

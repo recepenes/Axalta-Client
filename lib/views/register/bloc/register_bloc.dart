@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:axalta/exceptions/form_exceptions.dart';
 import 'package:axalta/model/user_model.dart';
 import 'package:axalta/services/auth_service.dart';
