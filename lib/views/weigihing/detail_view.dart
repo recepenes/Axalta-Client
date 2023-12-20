@@ -46,18 +46,18 @@ class _DetailViewState extends State<DetailView> {
                   color: Colors.grey[400],
                   child: DataTable(
                     headingRowHeight: 20,
-                    dataRowHeight: 20,
+                    dataRowHeight: 30,
                     columns: const [
                       DataColumn(
-                        label: Text('Sıra', style: TextStyle(fontSize: 10)),
+                        label: Text('Sıra', style: TextStyle(fontSize: 15)),
                         tooltip: 'Sıra',
                       ),
                       DataColumn(
                           label: Text('Ürün Kodu',
-                              style: TextStyle(fontSize: 10))),
+                              style: TextStyle(fontSize: 15))),
                       DataColumn(
                           label:
-                              Text('Ağırlık', style: TextStyle(fontSize: 10))),
+                              Text('Ağırlık', style: TextStyle(fontSize: 15))),
                     ],
                     rows: getTableRowData(),
                   ),
