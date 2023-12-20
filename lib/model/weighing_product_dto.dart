@@ -37,15 +37,12 @@ class WeighingProductDto {
         weight = "Bekleniyor",
         isDone = false;
 
-  List<DataRow> getRows() {
-    return [
-      DataRow(cells: [
-        DataCell(
-            Text(sequenceNumber.toString(), style: TextStyle(fontSize: 10))),
-        DataCell(Text(productNumber, style: TextStyle(fontSize: 10))),
-        DataCell(Text(weight, style: TextStyle(fontSize: 10))),
-      ])
-    ];
+  DataRow getRows() {
+    return DataRow(cells: [
+      DataCell(Text(sequenceNumber.toString(), style: TextStyle(fontSize: 10))),
+      DataCell(Text(productNumber, style: TextStyle(fontSize: 10))),
+      DataCell(Text(weight, style: TextStyle(fontSize: 10))),
+    ]);
   }
 
   factory WeighingProductDto.fromJson(Map<String, dynamic> json) {

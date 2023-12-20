@@ -1,5 +1,7 @@
+import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/weight_service.dart';
+import 'package:axalta/views/weigihing/detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -143,7 +145,18 @@ class _PigmentViewState extends State<PigmentView> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // İkinci butonun işlevi
+                          if (_formKey.currentState!.saveAndValidate()) {
+                            WeighingDetailDto dto = WeighingDetailDto(
+                                batchNo: _bacthNo.text,
+                                mixNo: int.parse(_mixNo.text),
+                                lineNumber: int.parse(_lineNo.text));
+
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailView(dto: dto),
+                                ));
+                          }
                         },
                         child: const Text('Detay'),
                       ),
@@ -229,7 +242,10 @@ class _PigmentViewState extends State<PigmentView> {
   WeighingProductDto lastRecord = WeighingProductDto.empty();
 
   List<DataRow> getTableRowData() {
-    return lastRecord.getRows();
+    List<DataRow> rows = List<DataRow>.empty(growable: true);
+
+    rows.add(lastRecord.getRows());
+    return rows;
   }
 
   Future recordWeight(WeighingProductDto dto) async {
