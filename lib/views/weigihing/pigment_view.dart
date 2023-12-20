@@ -22,6 +22,7 @@ class _PigmentViewState extends State<PigmentView> {
   late final TextEditingController _weight;
   late final TextEditingController _qrCode;
   bool _isExtra = false;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -60,72 +61,85 @@ class _PigmentViewState extends State<PigmentView> {
         builder: (context, snapshot) {
           return ListView(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: FormBuilder(
-                  key: _formKey,
-                  // height: 150,
-                  //color: Colors.grey[400],
-                  child: Column(
-                    children: [
-                      FormBuilderTextField(
-                        name: 'lineNo',
-                        controller: _lineNo,
-                        keyboardType: TextInputType.text,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                            labelText: "Hat No",
-                            contentPadding: EdgeInsets.all(8)),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                        ]),
-                      ),
-                      FormBuilderTextField(
-                        name: 'batchNo',
-                        controller: _bacthNo,
-                        keyboardType: TextInputType.text,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                            labelText: "Batch No",
-                            contentPadding: EdgeInsets.all(8)),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                        ]),
-                      ),
-                      FormBuilderTextField(
-                        name: 'mixNo',
-                        controller: _mixNo,
-                        keyboardType: TextInputType.text,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                            labelText: "Mix No",
-                            contentPadding: EdgeInsets.all(8)),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                        ]),
-                      ),
-                      FormBuilderTextField(
-                        name: "qrCode",
-                        controller: _qrCode,
-                        keyboardType: TextInputType.text,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                            labelText: "Ürün Barkodu Okut",
-                            contentPadding: EdgeInsets.all(8)),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                        ]),
-                      ),
-                      CheckboxListTile(
-                        title: const Text('İlave Tartım'),
-                        value: _isExtra,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            _isExtra = value ?? false;
-                          });
-                        },
-                      )
-                    ],
+              RawKeyboardListener(
+                //autofocus: true,
+                focusNode: FocusNode(),
+                onKey: (RawKeyEvent event) {
+                  if (event.logicalKey.debugName == "TV Satellite Toggle" ||
+                      event.logicalKey.debugName == "TV Antenna Cable" ||
+                      event.logicalKey.debugName == "TV Network") {
+                    FocusScope.of(context).requestFocus(_focusNode);
+                  }
+                },
+
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FormBuilder(
+                    key: _formKey,
+                    // height: 150,
+                    //color: Colors.grey[400],
+                    child: Column(
+                      children: [
+                        FormBuilderTextField(
+                          name: 'lineNo',
+                          controller: _lineNo,
+                          keyboardType: TextInputType.text,
+                          maxLines: null,
+                          decoration: const InputDecoration(
+                              labelText: "Hat No",
+                              contentPadding: EdgeInsets.all(8)),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(),
+                          ]),
+                        ),
+                        FormBuilderTextField(
+                          name: 'batchNo',
+                          controller: _bacthNo,
+                          keyboardType: TextInputType.text,
+                          maxLines: null,
+                          decoration: const InputDecoration(
+                              labelText: "Batch No",
+                              contentPadding: EdgeInsets.all(8)),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(),
+                          ]),
+                        ),
+                        FormBuilderTextField(
+                          name: 'mixNo',
+                          controller: _mixNo,
+                          keyboardType: TextInputType.text,
+                          maxLines: null,
+                          decoration: const InputDecoration(
+                              labelText: "Mix No",
+                              contentPadding: EdgeInsets.all(8)),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(),
+                          ]),
+                        ),
+                        FormBuilderTextField(
+                          name: "qrCode",
+                          controller: _qrCode,
+                          focusNode: _focusNode,
+                          keyboardType: TextInputType.text,
+                          maxLines: null,
+                          decoration: const InputDecoration(
+                              labelText: "Ürün Barkodu Okut",
+                              contentPadding: EdgeInsets.all(8)),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(),
+                          ]),
+                        ),
+                        CheckboxListTile(
+                          title: const Text('İlave Tartım'),
+                          value: _isExtra,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              _isExtra = value ?? false;
+                            });
+                          },
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -145,7 +159,9 @@ class _PigmentViewState extends State<PigmentView> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          if (_formKey.currentState!.saveAndValidate()) {
+                          if (_lineNo.text.isNotEmpty &&
+                              _bacthNo.text.isNotEmpty &&
+                              _mixNo.text.isNotEmpty) {
                             WeighingDetailDto dto = WeighingDetailDto(
                                 batchNo: _bacthNo.text,
                                 mixNo: int.parse(_mixNo.text),

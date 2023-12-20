@@ -26,9 +26,7 @@ class ApiService {
       "batchNo": dto.batchNo,
       "mixNo": dto.mixNo,
       "isExtra": dto.isExtra,
-      "sequenceNumber": dto.sequenceNumber,
       "productNumber": dto.productNumber,
-      "weight": dto.weight,
       "isDone": dto.isDone
     };
 
