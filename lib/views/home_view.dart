@@ -3,6 +3,7 @@
 import 'package:axalta/blocs/auth/auth_bloc.dart';
 import 'package:axalta/constants/routes.dart';
 import 'package:axalta/enums/menu_action.dart';
+import 'package:axalta/services/blue_tooth/blue_tooth_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 
@@ -31,9 +32,16 @@ class _HomeViewState extends State<HomeView> {
         appBar: AppBar(
           title: const Text("Ana Ekran"),
           actions: [
+            Icon(
+              Icons.print_sharp,
+              color: BlueToothService().getStatus() ? Colors.green : Colors.red,
+            ),
             PopupMenuButton<MenuAction>(
               onSelected: (value) async {
                 switch (value) {
+                  case MenuAction.bluetooth:
+                    Navigator.of(context).pushNamed(bluetoothRoute);
+
                   case MenuAction.logout:
                     final shouldLogOut = await showLogOutDialog(context);
 
@@ -63,7 +71,11 @@ class _HomeViewState extends State<HomeView> {
               itemBuilder: (context) {
                 return const [
                   PopupMenuItem(
-                    value: MenuAction.logout,
+                    value: MenuAction.bluetooth,
+                    child: Text("Yazıcı Ayarları"),
+                  ),
+                  PopupMenuItem(
+                    value: MenuAction.changePassword,
                     child: Text("Şifre Değiştir"),
                   ),
                   PopupMenuItem(
