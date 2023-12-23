@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:axalta/services/blue_tooth/blue_tooth_service.dart';
+import 'package:axalta/views/bluetooth/blue_tooth_view.dart';
 import 'package:axalta/views/home_view.dart';
 import 'package:axalta/views/login/bloc/login_bloc.dart';
 import 'package:axalta/views/login/login_screen.dart';
@@ -16,6 +18,9 @@ import 'constants/routes.dart';
 void main() {
   HttpOverrides.global = MyHttpOverrides();
   runApp(const App());
+  Future.delayed(Duration.zero, () {
+    BlueToothService().autoBtConnect();
+  });
 }
 
 class App extends StatelessWidget {
@@ -48,6 +53,7 @@ class App extends StatelessWidget {
           splashRoute: (context) => const SplashScreen(),
           loginRoute: (context) => LoginScreen(),
           pigmentRoute: (context) => const PigmentView(),
+          bluetoothRoute: (context) => const BlueToothView(),
         },
         localizationsDelegates: const [
           FormBuilderLocalizations.delegate,

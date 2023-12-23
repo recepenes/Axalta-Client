@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
+import '../../services/blue_tooth/blue_tooth_service.dart';
+
 class PigmentView extends StatefulWidget {
   const PigmentView({super.key});
 
@@ -55,6 +57,15 @@ class _PigmentViewState extends State<PigmentView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Pigment Tartım"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Icon(
+              Icons.print_sharp,
+              color: BlueToothService().getStatus() ? Colors.green : Colors.red,
+            ),
+          )
+        ],
       ),
       body: FutureBuilder(
         future: createNewWeighing(),
@@ -62,7 +73,7 @@ class _PigmentViewState extends State<PigmentView> {
           return ListView(
             children: [
               RawKeyboardListener(
-                //autofocus: true,
+                autofocus: true,
                 focusNode: FocusNode(),
                 onKey: (RawKeyEvent event) {
                   if (event.logicalKey.debugName == "TV Satellite Toggle" ||
@@ -71,7 +82,6 @@ class _PigmentViewState extends State<PigmentView> {
                     FocusScope.of(context).requestFocus(_focusNode);
                   }
                 },
-
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: FormBuilder(
@@ -154,6 +164,10 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: () {
                           // Birinci butonun işlevi
+                          BlueToothService().printTicket();
+                          setState(() {
+                            BlueToothService().getStatus();
+                          });
                         },
                         child: const Text('Başla'),
                       ),
