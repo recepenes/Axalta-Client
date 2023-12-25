@@ -25,7 +25,7 @@ class _BlueToothViewState extends State<BlueToothView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('List of devices - Printers'),
+        title: const Text('BT Yazıcı Ayarları'),
       ),
       body: Column(
         children: [
@@ -33,14 +33,14 @@ class _BlueToothViewState extends State<BlueToothView> {
             child: Column(
               children: [
                 TextButton(
-                  child: const Center(child: Text("Open Settings")),
+                  child: const Center(child: Text("BT Ayarlarını Aç")),
                   onPressed: () => printer.openSettings(),
                 )
               ],
             ),
           ),
           const Divider(),
-          const Text("Search Paired Bluetooth"),
+          const Text("Bağlanmış Bluetooth cihazları ara"),
           TextButton(
             onPressed: () async {
               devices = await BlueToothService().getDevices();
@@ -48,7 +48,7 @@ class _BlueToothViewState extends State<BlueToothView> {
                 devices = devices;
               });
             },
-            child: const Text("Search"),
+            child: const Text("Ara"),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -71,7 +71,7 @@ class _BlueToothViewState extends State<BlueToothView> {
                       },
                       title: Text(
                           '${devices[index].name} - ${devices[index].address}'),
-                      subtitle: const Text("Click to connect"),
+                      subtitle: const Text("Bağlanmak için dokun"),
                     );
                   },
                 ),
@@ -104,17 +104,23 @@ class _BlueToothViewState extends State<BlueToothView> {
                     title: BlueToothService().getStatus()
                         ? Center(
                             child: Text(BlueToothService().getDevice()!.name!))
-                        : const Center(child: Text("No device")),
+                        : const Center(child: Text("Secili cihaz yok")),
                     subtitle: BlueToothService().getStatus()
                         ? Center(
                             child:
                                 Text(BlueToothService().getDevice()!.address))
                         : const Center(
-                            child: Text("Select a device of the list")),
+                            child: Text("Lütfen SPP-R310 cihazını seçin")),
                   ),
                   TextButton(
                     onPressed: BlueToothService().getStatus()
-                        ? () => BlueToothService().printTicket()
+                        ? () {
+                            /*WeighingDetailDto dto = WeighingDetailDto(
+                                batchNo: "2345", mixNo: 1, lineNumber: 34);
+                            BlueToothService().printTicket(dto);
+                            */
+                            //TODO: Mock data yapısı eklenecek.
+                          }
                         : null,
                     child: const Text("PRINT DATA"),
                   ),

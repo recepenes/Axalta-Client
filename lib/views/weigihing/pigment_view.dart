@@ -164,7 +164,6 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: () {
                           // Birinci butonun işlevi
-                          BlueToothService().printTicket();
                           setState(() {
                             BlueToothService().getStatus();
                           });
