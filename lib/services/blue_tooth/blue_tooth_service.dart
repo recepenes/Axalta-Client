@@ -1,3 +1,7 @@
+import 'package:axalta/constants/api_url.dart';
+import 'package:axalta/model/weighing_detail_dto.dart';
+import 'package:axalta/model/weighing_product_dto.dart';
+import 'package:axalta/services/weight/detail_service.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'dart:developer' as devtools show log;
 
@@ -52,36 +56,56 @@ class BlueToothService {
     }
   }
 
-  Future<void> printTicket() async {
+  Future<void> printTicket(WeighingDetailDto dto) async {
     String address = device!.address;
     //TODO:catch status değişecek
     final profile = await CapabilityProfile.load();
     final generator = Generator(PaperSize.mm80, profile);
     List<int> bytes = [];
 
-    // //  Print image:
-    //final ByteData data = await rootBundle.load('assets/wz.png');
-    //final Uint8List bytesImg = data.buffer.asUint8List();
-    //var image = decodePng(bytesImg);
+    List<WeighingProductDto> reports = await DetailService().getDetails(dto);
 
-    // resize
-    //var thumbnail =
-    //  copyResize(image!, interpolation: Interpolation.nearest, height: 200);
+    if (reports.isEmpty) {
+      devtools.log("Rapor detayı bulunamadı");
+      return;
+    }
 
-    bytes += generator.text("fp_bt_printer",
-        styles: PosStyles(align: PosAlign.center, bold: true));
+    var lineNumber = reports[0].lineNumber;
+    var batchNo = reports[0].batchNo;
+    var mixNo = reports[0].mixNo;
+
+    bytes += generator.text("Tarih Saat:" + DateTime.now().toString(),
+        styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.text("Operator: Enes",
+        styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.text("Tarti: Pigment",
+        styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.text('Hat No: $lineNumber',
+        styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.text("Batch No: $batchNo",
+        styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.text("Mix No: $mixNo",
+        styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.feed(1);
 
     // bytes += generator.imageRaster(thumbnail, align: PosAlign.center);
 
+    bytes += generator.text('Sira   Ürün No                   Miktar',
+        styles: const PosStyles(align: PosAlign.left));
+    for (var x in reports) {
+      bytes += generator.text(
+          '${x.sequenceNumber}${addWhiteSpaceBySequence(x.sequenceNumber.toString())}${x.productNumber}${addWhiteSpace(x.productNumber.toString())}${x.weight}',
+          styles: const PosStyles(align: PosAlign.left));
+    }
+
     bytes += generator.reset();
-    bytes += generator.setGlobalCodeTable('CP1252');
+    // bytes += generator.setGlobalCodeTable('CP1252');
     bytes += generator.feed(1);
-    bytes += generator.text("HELLO PRINTER by FPV",
-        styles: PosStyles(align: PosAlign.center, bold: true));
-    bytes += generator.qrcode("https://github.com/FranciscoPV94",
-        size: QRSize.Size6);
-    bytes += generator.feed(1);
-    bytes += generator.feed(1);
+
+    bytes += generator.qrcode(
+        '${reportRoute}lineNumber=$lineNumber&batchNo=$batchNo&mixNo=$mixNo',
+        size: QRSize.Size4);
+    bytes += generator.feed(2);
 
     try {
       final resp = await printer.printData(bytes, address: address);
@@ -93,5 +117,23 @@ class BlueToothService {
       connected = false;
       devtools.log("Yazdırılamadı");
     }
+  }
+
+  String addWhiteSpace(String str) {
+    String whiteSpace = "";
+    for (int i = 0; i < 26 - str.length; i++) {
+      whiteSpace += " ";
+    }
+
+    return whiteSpace;
+  }
+
+  String addWhiteSpaceBySequence(String str) {
+    String whiteSpace = "";
+    for (int i = 0; i < 7 - str.length; i++) {
+      whiteSpace += " ";
+    }
+
+    return whiteSpace;
   }
 }

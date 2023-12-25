@@ -3,3 +3,4 @@ const String host = "192.168.1.33";
 const int port = 8086;
 const String scheme = "https";
 const String apiRoute = "/api/";
+const String reportRoute = "http://192.168.1.33:8090/ReportDetail?";
