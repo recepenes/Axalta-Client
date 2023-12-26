@@ -1,4 +1,5 @@
 import 'package:axalta/constants/api_url.dart';
+import 'package:axalta/constants/indicator.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/detail_service.dart';
@@ -78,7 +79,7 @@ class BlueToothService {
         styles: const PosStyles(align: PosAlign.left));
     bytes += generator.text("Operator: Enes",
         styles: const PosStyles(align: PosAlign.left));
-    bytes += generator.text("Tarti: Pigment",
+    bytes += generator.text("Tarti: $indicatorName",
         styles: const PosStyles(align: PosAlign.left));
     bytes += generator.text('Hat No: $lineNumber',
         styles: const PosStyles(align: PosAlign.left));

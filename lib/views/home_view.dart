@@ -55,17 +55,9 @@ class _HomeViewState extends State<HomeView> {
                     }
                     break;
                   case MenuAction.changePassword:
-                    final shouldLogOut = await showLogOutDialog(context);
-
-                    if (shouldLogOut) {
-                      context
-                          .read<AuthBloc>()
-                          .add(AuthLogoutEvent()); //Logout User
-                      devtools.log("Çıkış Başarılı");
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          loginRoute, (route) => false);
-                    }
                     break;
+                  case MenuAction.indicator:
+                    Navigator.of(context).pushNamed(indicatorRoute);
                 }
               },
               itemBuilder: (context) {
@@ -73,6 +65,10 @@ class _HomeViewState extends State<HomeView> {
                   PopupMenuItem(
                     value: MenuAction.bluetooth,
                     child: Text("Yazıcı Ayarları"),
+                  ),
+                  PopupMenuItem(
+                    value: MenuAction.indicator,
+                    child: Text("Tartım Ayarları"),
                   ),
                   PopupMenuItem(
                     value: MenuAction.changePassword,

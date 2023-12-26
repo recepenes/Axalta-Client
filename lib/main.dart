@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:axalta/constants/indicator.dart';
 import 'package:axalta/services/blue_tooth/blue_tooth_service.dart';
+import 'package:axalta/services/indicators/indicator_service.dart';
 import 'package:axalta/views/bluetooth/blue_tooth_view.dart';
 import 'package:axalta/views/home_view.dart';
+import 'package:axalta/views/indicator/indicator_view.dart';
 import 'package:axalta/views/login/bloc/login_bloc.dart';
 import 'package:axalta/views/login/login_screen.dart';
 import 'package:axalta/views/weigihing/pigment_view.dart';
@@ -18,8 +21,11 @@ import 'constants/routes.dart';
 void main() {
   HttpOverrides.global = MyHttpOverrides();
   runApp(const App());
-  Future.delayed(Duration.zero, () {
-    BlueToothService().autoBtConnect();
+  Future.delayed(Duration.zero, () async {
+    await BlueToothService().autoBtConnect();
+    var indicator = await IndicatorService().loadIndicatorIdFromDevice();
+    indicatorName = indicator['indicatorName'];
+    indicatorId = indicator['indicatorId'];
   });
 }
 
@@ -54,6 +60,7 @@ class App extends StatelessWidget {
           loginRoute: (context) => LoginScreen(),
           pigmentRoute: (context) => const PigmentView(),
           bluetoothRoute: (context) => const BlueToothView(),
+          indicatorRoute: (context) => const IndicatorView(),
         },
         localizationsDelegates: const [
           FormBuilderLocalizations.delegate,

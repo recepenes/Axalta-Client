@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'package:axalta/constants/api_url.dart';
+import 'package:axalta/constants/indicator.dart';
 import 'package:axalta/constants/user_token.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as devtools show log;
 
 class ApiService {
-  // Örnek bir POST isteği
   Future<WeighingProductDto> postData(WeighingProductDto dto) async {
-    //final Uri uri = Uri.parse('$apiUrl/weighing'); // Gerçek endpoint'i ekleyin
 
     WeighingProductDto weighingProduct = WeighingProductDto.empty();
 
@@ -32,8 +31,11 @@ class ApiService {
 
     try {
       devtools.log("post");
+      Uri modifiedUri = uri.replace(queryParameters: {
+        'indicatorId': indicatorId.toString(),
+      });
       final http.Response response = await http.post(
-        uri,
+        modifiedUri,
         body: jsonEncode(data), // Verileri JSON formatına çevirin
         headers: {
           'Content-Type': 'application/json', // İçerik tipini belirtin
@@ -55,7 +57,7 @@ class ApiService {
         return weighingProduct;
       }
     } catch (e) {
-      devtools.log("Kayıt alınırken bir hata oluştu: " + e.toString());
+      devtools.log("Kayıt alınırken exception: " + e.toString());
     }
     return weighingProduct;
   }
