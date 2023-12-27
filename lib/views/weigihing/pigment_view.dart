@@ -1,5 +1,6 @@
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
+import 'package:axalta/services/indicators/indicator_service.dart';
 import 'package:axalta/services/weight/weight_service.dart';
 import 'package:axalta/views/weigihing/detail_view.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _PigmentViewState extends State<PigmentView> {
   late final TextEditingController _qrCode;
   bool _isExtra = false;
   final FocusNode _focusNode = FocusNode();
+  bool isButtonActive = false; // Varsayılan olarak pasif
 
   @override
   void initState() {
@@ -155,58 +157,51 @@ class _PigmentViewState extends State<PigmentView> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Container(
+                child: SizedBox(
                   height: 50,
-                  color: Colors.grey[400],
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
                         onPressed: () {
                           // Birinci butonun işlevi
+                          IndicatorService().sendTareToIndicator();
                           setState(() {
-                            BlueToothService().getStatus();
+                            isButtonActive = true;
                           });
                         },
                         child: const Text('Başla'),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          if (_lineNo.text.isNotEmpty &&
-                              _bacthNo.text.isNotEmpty &&
-                              _mixNo.text.isNotEmpty) {
-                            WeighingDetailDto dto = WeighingDetailDto(
-                                batchNo: _bacthNo.text,
-                                mixNo: int.parse(_mixNo.text),
-                                lineNumber: int.parse(_lineNo.text));
-
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailView(dto: dto),
-                                ));
-                          }
-                        },
+                        onPressed: isButtonActive
+                            ? () {
+                                if (_lineNo.text.isNotEmpty &&
+                                    _bacthNo.text.isNotEmpty &&
+                                    _mixNo.text.isNotEmpty) {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DetailView(
+                                          dto: getDetailDto(),
+                                        ),
+                                      ));
+                                }
+                              }
+                            : null,
                         child: const Text('Detay'),
                       ),
                       ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.saveAndValidate()) {
-                            // Form is valid, perform your actions here
-                            WeighingProductDto dto = WeighingProductDto(
-                                id: 1,
-                                lineNumber: int.parse(_lineNo.text),
-                                batchNo: _bacthNo.text,
-                                mixNo: int.parse(_mixNo.text),
-                                isExtra: _isExtra,
-                                sequenceNumber: 2,
-                                productNumber: _qrCode.text,
-                                weight: "22",
-                                isDone: false);
+                        onPressed: isButtonActive
+                            ? () async {
+                                if (_formKey.currentState!.saveAndValidate()) {
+                                  // Form is valid, perform your actions here
 
-                            recordWeight(dto);
-                          }
-                        },
+                                  await recordWeight(getWeighingDto());
+                                  await IndicatorService()
+                                      .sendTareToIndicator();
+                                }
+                              }
+                            : null,
                         child: const Text('Ok'),
                       ),
                     ],
@@ -239,22 +234,26 @@ class _PigmentViewState extends State<PigmentView> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Container(
+                child: SizedBox(
                   height: 50,
-                  color: Colors.grey[400],
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          // Birinci butonun işlevi
-                        },
+                        onPressed: isButtonActive
+                            ? () {
+                                // Birinci butonun işlevi
+                              }
+                            : null,
                         child: const Text('Duraklat'),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          // İkinci butonun işlevi
-                        },
+                        onPressed: isButtonActive
+                            ? () {
+                                // İkinci butonun işlevi
+                                BlueToothService().printTicket(getDetailDto());
+                              }
+                            : null,
                         child: const Text('Tartımı Bitir'),
                       ),
                     ],
@@ -287,4 +286,24 @@ class _PigmentViewState extends State<PigmentView> {
   }
 
   createNewWeighing() {}
+
+  WeighingDetailDto getDetailDto() {
+    return WeighingDetailDto(
+        batchNo: _bacthNo.text,
+        mixNo: int.parse(_mixNo.text),
+        lineNumber: int.parse(_lineNo.text));
+  }
+
+  WeighingProductDto getWeighingDto() {
+    return WeighingProductDto(
+        id: 1,
+        lineNumber: int.parse(_lineNo.text),
+        batchNo: _bacthNo.text,
+        mixNo: int.parse(_mixNo.text),
+        isExtra: _isExtra,
+        sequenceNumber: 2,
+        productNumber: _qrCode.text,
+        weight: "22",
+        isDone: false);
+  }
 }
