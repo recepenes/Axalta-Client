@@ -251,6 +251,7 @@ class _PigmentViewState extends State<PigmentView> {
                         onPressed: isButtonActive
                             ? () {
                                 // İkinci butonun işlevi
+                                ApiService().finishRecord(getDetailDto());
                                 BlueToothService().printTicket(getDetailDto());
                               }
                             : null,
