@@ -58,57 +58,57 @@ class BlueToothService {
   }
 
   Future<void> printTicket(WeighingDetailDto dto) async {
-    String address = device!.address;
-    //TODO:catch status değişecek
-    final profile = await CapabilityProfile.load();
-    final generator = Generator(PaperSize.mm80, profile);
-    List<int> bytes = [];
-
-    List<WeighingProductDto> reports = await DetailService().getDetails(dto);
-
-    if (reports.isEmpty) {
-      devtools.log("Rapor detayı bulunamadı");
-      return;
-    }
-
-    var lineNumber = reports[0].lineNumber;
-    var batchNo = reports[0].batchNo;
-    var mixNo = reports[0].mixNo;
-
-    bytes += generator.text("Tarih Saat:" + DateTime.now().toString(),
-        styles: const PosStyles(align: PosAlign.left));
-    bytes += generator.text("Operator: Enes",
-        styles: const PosStyles(align: PosAlign.left));
-    bytes += generator.text("Tarti: $indicatorName",
-        styles: const PosStyles(align: PosAlign.left));
-    bytes += generator.text('Hat No: $lineNumber',
-        styles: const PosStyles(align: PosAlign.left));
-    bytes += generator.text("Batch No: $batchNo",
-        styles: const PosStyles(align: PosAlign.left));
-    bytes += generator.text("Mix No: $mixNo",
-        styles: const PosStyles(align: PosAlign.left));
-    bytes += generator.feed(1);
-
-    // bytes += generator.imageRaster(thumbnail, align: PosAlign.center);
-
-    bytes += generator.text('Sira   Ürün No                   Miktar',
-        styles: const PosStyles(align: PosAlign.left));
-    for (var x in reports) {
-      bytes += generator.text(
-          '${x.sequenceNumber}${addWhiteSpaceBySequence(x.sequenceNumber.toString())}${x.productNumber}${addWhiteSpace(x.productNumber.toString())}${x.weight}',
-          styles: const PosStyles(align: PosAlign.left));
-    }
-
-    bytes += generator.reset();
-    // bytes += generator.setGlobalCodeTable('CP1252');
-    bytes += generator.feed(1);
-
-    bytes += generator.qrcode(
-        '${reportRoute}lineNumber=$lineNumber&batchNo=$batchNo&mixNo=$mixNo',
-        size: QRSize.Size4);
-    bytes += generator.feed(2);
-
     try {
+      String address = device!.address;
+      //TODO:catch status değişecek
+      final profile = await CapabilityProfile.load();
+      final generator = Generator(PaperSize.mm80, profile);
+      List<int> bytes = [];
+
+      List<WeighingProductDto> reports = await DetailService().getDetails(dto);
+
+      if (reports.isEmpty) {
+        devtools.log("Rapor detayı bulunamadı");
+        return;
+      }
+
+      var lineNumber = reports[0].lineNumber;
+      var batchNo = reports[0].batchNo;
+      var mixNo = reports[0].mixNo;
+
+      bytes += generator.text("Tarih Saat:" + DateTime.now().toString(),
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text("Operator: Enes",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text("Tarti: $indicatorName",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text('Hat No: $lineNumber',
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text("Batch No: $batchNo",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text("Mix No: $mixNo",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.feed(1);
+
+      // bytes += generator.imageRaster(thumbnail, align: PosAlign.center);
+
+      bytes += generator.text('Sira   Ürün No                   Miktar',
+          styles: const PosStyles(align: PosAlign.left));
+      for (var x in reports) {
+        bytes += generator.text(
+            '${x.sequenceNumber}${addWhiteSpaceBySequence(x.sequenceNumber.toString())}${x.productNumber}${addWhiteSpace(x.productNumber.toString())}${x.weight}',
+            styles: const PosStyles(align: PosAlign.left));
+      }
+
+      bytes += generator.reset();
+      // bytes += generator.setGlobalCodeTable('CP1252');
+      bytes += generator.feed(1);
+
+      bytes += generator.qrcode(
+          '${reportRoute}lineNumber=$lineNumber&batchNo=$batchNo&mixNo=$mixNo',
+          size: QRSize.Size4);
+      bytes += generator.feed(2);
+
       final resp = await printer.printData(bytes, address: address);
       if (!resp.success) {
         connected = false;
