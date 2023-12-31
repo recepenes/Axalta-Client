@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/indicators/indicator_service.dart';
@@ -26,7 +28,11 @@ class _PigmentViewState extends State<PigmentView> {
   late final TextEditingController _qrCode;
   bool _isExtra = false;
   final FocusNode _focusNode = FocusNode();
-  bool isButtonActive = false; // Varsayılan olarak pasif
+  bool isButtonActive = false;
+  Color _backgroundColor = Colors.transparent;
+  String _qrCodeLabelText = "Ürün Barkodu Okut";
+  bool _isBTDeviceActive = false;
+  late Timer _timer;
 
   @override
   void initState() {
@@ -38,6 +44,7 @@ class _PigmentViewState extends State<PigmentView> {
     _weight = TextEditingController();
     _qrCode = TextEditingController();
     super.initState();
+    _startTimer();
   }
 
   @override
@@ -49,6 +56,7 @@ class _PigmentViewState extends State<PigmentView> {
     _sequenceNo.dispose();
     _weight.dispose();
     _qrCode.dispose();
+    _timer.cancel();
     super.dispose();
   }
 
@@ -64,7 +72,7 @@ class _PigmentViewState extends State<PigmentView> {
             padding: const EdgeInsets.all(15.0),
             child: Icon(
               Icons.print_sharp,
-              color: BlueToothService().getStatus() ? Colors.green : Colors.red,
+              color: _isBTDeviceActive ? Colors.green : Colors.red,
             ),
           )
         ],
@@ -95,7 +103,7 @@ class _PigmentViewState extends State<PigmentView> {
                         FormBuilderTextField(
                           name: 'lineNo',
                           controller: _lineNo,
-                          keyboardType: TextInputType.text,
+                          keyboardType: TextInputType.number,
                           maxLines: null,
                           decoration: const InputDecoration(
                               labelText: "Hat No",
@@ -103,6 +111,9 @@ class _PigmentViewState extends State<PigmentView> {
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
                           ]),
+                          onEditingComplete: () {
+                            FocusScope.of(context).nextFocus();
+                          },
                         ),
                         FormBuilderTextField(
                           name: 'batchNo',
@@ -115,11 +126,14 @@ class _PigmentViewState extends State<PigmentView> {
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
                           ]),
+                          onEditingComplete: () {
+                            FocusScope.of(context).nextFocus();
+                          },
                         ),
                         FormBuilderTextField(
                           name: 'mixNo',
                           controller: _mixNo,
-                          keyboardType: TextInputType.text,
+                          keyboardType: TextInputType.number,
                           maxLines: null,
                           decoration: const InputDecoration(
                               labelText: "Mix No",
@@ -127,6 +141,9 @@ class _PigmentViewState extends State<PigmentView> {
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
                           ]),
+                          onEditingComplete: () {
+                            FocusScope.of(context).nextFocus();
+                          },
                         ),
                         FormBuilderTextField(
                           name: "qrCode",
@@ -134,9 +151,12 @@ class _PigmentViewState extends State<PigmentView> {
                           focusNode: _focusNode,
                           keyboardType: TextInputType.text,
                           maxLines: null,
-                          decoration: const InputDecoration(
-                              labelText: "Ürün Barkodu Okut",
-                              contentPadding: EdgeInsets.all(8)),
+                          decoration: InputDecoration(
+                            labelText: _qrCodeLabelText,
+                            contentPadding: const EdgeInsets.all(8),
+                            filled: true,
+                            fillColor: _backgroundColor,
+                          ),
                           validator: FormBuilderValidators.compose([
                             FormBuilderValidators.required(),
                           ]),
@@ -164,7 +184,6 @@ class _PigmentViewState extends State<PigmentView> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          // Birinci butonun işlevi
                           IndicatorService().sendTareToIndicator();
                           setState(() {
                             isButtonActive = true;
@@ -194,11 +213,10 @@ class _PigmentViewState extends State<PigmentView> {
                         onPressed: isButtonActive
                             ? () async {
                                 if (_formKey.currentState!.saveAndValidate()) {
-                                  // Form is valid, perform your actions here
-
                                   await recordWeight(getWeighingDto());
                                   await IndicatorService()
                                       .sendTareToIndicator();
+                                  _changeQrCodeBackgroundColor();
                                 }
                               }
                             : null,
@@ -243,16 +261,18 @@ class _PigmentViewState extends State<PigmentView> {
                         onPressed: isButtonActive
                             ? () {
                                 // Birinci butonun işlevi
+                                Navigator.pop(context);
                               }
                             : null,
                         child: const Text('Duraklat'),
                       ),
                       ElevatedButton(
                         onPressed: isButtonActive
-                            ? () {
-                                // İkinci butonun işlevi
-                                ApiService().finishRecord(getDetailDto());
-                                BlueToothService().printTicket(getDetailDto());
+                            ? () async {
+                                await ApiService().finishRecord(getDetailDto());
+                                BlueToothService().setDto(getDetailDto());
+                                await BlueToothService().startTimer();
+                                _finishWeighing();
                               }
                             : null,
                         child: const Text('Tartımı Bitir'),
@@ -306,5 +326,37 @@ class _PigmentViewState extends State<PigmentView> {
         productNumber: _qrCode.text,
         weight: "22",
         isDone: false);
+  }
+
+  void _changeQrCodeBackgroundColor() {
+    setState(() {
+      _backgroundColor = _backgroundColor == Colors.transparent
+          ? Colors.yellow
+          : Colors.yellow;
+      _qrCodeLabelText = "Yeni Ürün Barkodu Okut";
+    });
+  }
+
+  void _finishWeighing() {
+    setState(() {
+      _lineNo.clear();
+      _bacthNo.clear();
+      _mixNo.clear();
+      _qrCode.clear();
+      isButtonActive = false;
+      _backgroundColor = Colors.transparent;
+      _qrCodeLabelText = "Ürün Barkodu Okut";
+    });
+  }
+
+  void _startTimer() async {
+    // Timer'ı 5 saniyede bir çalıştırmak için ayarlayın
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      // Burada her 5 saniyede bir çalışmasını istediğiniz işlemi gerçekleştirin
+      setState(() {
+        _isBTDeviceActive = BlueToothService().getStatus();
+        ;
+      });
+    });
   }
 }

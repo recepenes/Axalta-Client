@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:axalta/constants/api_url.dart';
 import 'package:axalta/constants/indicator.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
@@ -12,8 +14,30 @@ class BlueToothService {
   static List<PrinterDevice> devices = [];
   static PrinterDevice? device;
   static bool connected = false;
+  static Timer? _timer;
+  static WeighingDetailDto tempDto = WeighingDetailDto.empty();
 
-  FpBtPrinter printer = FpBtPrinter();
+  static FpBtPrinter printer = FpBtPrinter();
+
+  Future startTimer() async {
+    _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+      await connectAndPrint();
+    });
+  }
+
+  void _stopTimer() {
+    // Timer'ı durdurun
+    _timer?.cancel();
+  }
+
+  Future connectAndPrint() async {
+    await setConnet(devices[0]);
+    await printTicket();
+  }
+
+  Future setDto(WeighingDetailDto dto) async => tempDto = dto;
+
+  WeighingDetailDto getDto() => tempDto;
 
   Future<void> autoBtConnect() async {
     await getDevices();
@@ -38,29 +62,25 @@ class BlueToothService {
     devices = response;
 
     return devices;
-    //if (devices[0].name == "SPP-R310") {
-    //setConnet(devices[0]);
-    //}
   }
 
   Future<void> setConnet(PrinterDevice d) async {
     if (devices[0].name == "SPP-R310") {
       final response = await printer.checkConnection(d.address);
-
       if (response.success) {
         device = d;
         connected = true;
       } else {
         connected = false;
-        device = null;
       }
     }
   }
 
-  Future<void> printTicket(WeighingDetailDto dto) async {
+  Future<void> printTicket() async {
     try {
       String address = device!.address;
-      //TODO:catch status değişecek
+      WeighingDetailDto dto = getDto();
+
       final profile = await CapabilityProfile.load();
       final generator = Generator(PaperSize.mm80, profile);
       List<int> bytes = [];
@@ -112,6 +132,8 @@ class BlueToothService {
       final resp = await printer.printData(bytes, address: address);
       if (!resp.success) {
         connected = false;
+      } else {
+        _stopTimer();
       }
       devtools.log(resp.message);
     } catch (e) {

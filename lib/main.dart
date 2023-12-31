@@ -8,6 +8,7 @@ import 'package:axalta/views/home_view.dart';
 import 'package:axalta/views/indicator/indicator_view.dart';
 import 'package:axalta/views/login/bloc/login_bloc.dart';
 import 'package:axalta/views/login/login_screen.dart';
+import 'package:axalta/views/weigihing/cumulative_view.dart';
 import 'package:axalta/views/weigihing/pigment_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,6 +62,7 @@ class App extends StatelessWidget {
           pigmentRoute: (context) => const PigmentView(),
           bluetoothRoute: (context) => const BlueToothView(),
           indicatorRoute: (context) => const IndicatorView(),
+          cumulativeRoute: (context) => const CumulativeView(),
         },
         localizationsDelegates: const [
           FormBuilderLocalizations.delegate,
