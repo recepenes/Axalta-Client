@@ -40,6 +40,7 @@ class WeighingProductDto {
   DataRow getRows() {
     return DataRow(cells: [
       DataCell(Text(sequenceNumber.toString(), style: TextStyle(fontSize: 10))),
+      DataCell(Text(mixNo.toString(), style: TextStyle(fontSize: 10))),
       DataCell(Text(productNumber, style: TextStyle(fontSize: 10))),
       DataCell(Text(weight, style: TextStyle(fontSize: 10))),
     ]);
