@@ -17,8 +17,10 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  bool isBTDeviceActive = false;
   @override
   void initState() {
+    isBTDeviceActive = BlueToothService().getStatus();
     super.initState();
   }
 
@@ -34,7 +36,7 @@ class _HomeViewState extends State<HomeView> {
           actions: [
             Icon(
               Icons.print_sharp,
-              color: BlueToothService().getStatus() ? Colors.green : Colors.red,
+              color: isBTDeviceActive ? Colors.green : Colors.red,
             ),
             PopupMenuButton<MenuAction>(
               onSelected: (value) async {
