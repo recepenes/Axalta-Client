@@ -109,7 +109,8 @@ class _PigmentViewState extends State<PigmentView> {
                               labelText: "Hat No",
                               contentPadding: EdgeInsets.all(8)),
                           validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
+                            FormBuilderValidators.required(
+                                errorText: "Bu alan boş bırakılımaz."),
                           ]),
                           onEditingComplete: () {
                             FocusScope.of(context).nextFocus();
@@ -124,7 +125,8 @@ class _PigmentViewState extends State<PigmentView> {
                               labelText: "Batch No",
                               contentPadding: EdgeInsets.all(8)),
                           validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
+                            FormBuilderValidators.required(
+                                errorText: "Bu alan boş bırakılımaz."),
                           ]),
                           onEditingComplete: () {
                             FocusScope.of(context).nextFocus();
@@ -139,7 +141,8 @@ class _PigmentViewState extends State<PigmentView> {
                               labelText: "Mix No",
                               contentPadding: EdgeInsets.all(8)),
                           validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
+                            FormBuilderValidators.required(
+                                errorText: "Bu alan boş bırakılımaz."),
                           ]),
                           onEditingComplete: () {
                             FocusScope.of(context).nextFocus();
@@ -158,7 +161,8 @@ class _PigmentViewState extends State<PigmentView> {
                             fillColor: _backgroundColor,
                           ),
                           validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
+                            FormBuilderValidators.required(
+                                errorText: "Bu alan boş bırakılımaz."),
                           ]),
                         ),
                         CheckboxListTile(

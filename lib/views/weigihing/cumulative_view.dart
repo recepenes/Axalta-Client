@@ -19,7 +19,6 @@ class _CumulativeViewState extends State<CumulativeView> {
   late final TextEditingController _lineNo;
   late final TextEditingController _bacthNo;
   late final TextEditingController _mixNo;
-  final FocusNode _focusNode = FocusNode();
   bool isButtonActive = false;
   bool _isBTDeviceActive = false;
   late Timer _timer;
@@ -64,71 +63,61 @@ class _CumulativeViewState extends State<CumulativeView> {
         builder: (context, snapshot) {
           return ListView(
             children: [
-              RawKeyboardListener(
-                autofocus: true,
-                focusNode: FocusNode(),
-                onKey: (RawKeyEvent event) {
-                  if (event.logicalKey.debugName == "TV Satellite Toggle" ||
-                      event.logicalKey.debugName == "TV Antenna Cable" ||
-                      event.logicalKey.debugName == "TV Network") {
-                    FocusScope.of(context).requestFocus(_focusNode);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: FormBuilder(
-                    key: _formKey,
-                    // height: 150,
-                    //color: Colors.grey[400],
-                    child: Column(
-                      children: [
-                        FormBuilderTextField(
-                          name: 'lineNo',
-                          controller: _lineNo,
-                          keyboardType: TextInputType.number,
-                          maxLines: null,
-                          decoration: const InputDecoration(
-                              labelText: "Hat No",
-                              contentPadding: EdgeInsets.all(8)),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
-                          ]),
-                          onEditingComplete: () {
-                            FocusScope.of(context).nextFocus();
-                          },
-                        ),
-                        FormBuilderTextField(
-                          name: 'batchNo',
-                          controller: _bacthNo,
-                          keyboardType: TextInputType.text,
-                          maxLines: null,
-                          decoration: const InputDecoration(
-                              labelText: "Batch No",
-                              contentPadding: EdgeInsets.all(8)),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
-                          ]),
-                          onEditingComplete: () {
-                            FocusScope.of(context).nextFocus();
-                          },
-                        ),
-                        FormBuilderTextField(
-                          name: 'mixNo',
-                          controller: _mixNo,
-                          keyboardType: TextInputType.number,
-                          maxLines: null,
-                          decoration: const InputDecoration(
-                              labelText: "Mix No",
-                              contentPadding: EdgeInsets.all(8)),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(),
-                          ]),
-                          onEditingComplete: () {
-                            FocusScope.of(context).nextFocus();
-                          },
-                        ),
-                      ],
-                    ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FormBuilder(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      FormBuilderTextField(
+                        name: 'lineNo',
+                        controller: _lineNo,
+                        keyboardType: TextInputType.number,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                            labelText: "Hat No",
+                            contentPadding: EdgeInsets.all(8)),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(
+                              errorText: "Bu alan boş bırakılımaz."),
+                        ]),
+                        onEditingComplete: () {
+                          FocusScope.of(context).nextFocus();
+                        },
+                      ),
+                      FormBuilderTextField(
+                        name: 'batchNo',
+                        controller: _bacthNo,
+                        keyboardType: TextInputType.text,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                            labelText: "Batch No",
+                            contentPadding: EdgeInsets.all(8)),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(
+                              errorText: "Bu alan boş bırakılımaz."),
+                        ]),
+                        onEditingComplete: () {
+                          FocusScope.of(context).nextFocus();
+                        },
+                      ),
+                      FormBuilderTextField(
+                        name: 'mixNo',
+                        controller: _mixNo,
+                        keyboardType: TextInputType.number,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                            labelText: "Mix No",
+                            contentPadding: EdgeInsets.all(8)),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(
+                              errorText: "Bu alan boş bırakılımaz."),
+                        ]),
+                        onEditingComplete: () {
+                          FocusScope.of(context).nextFocus();
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
