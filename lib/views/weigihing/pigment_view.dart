@@ -238,10 +238,14 @@ class _PigmentViewState extends State<PigmentView> {
                   child: DataTable(
                     headingRowHeight: 20,
                     dataRowHeight: 20,
+                    columnSpacing: 30,
                     columns: const [
                       DataColumn(
                         label: Text('Sıra', style: TextStyle(fontSize: 10)),
                         tooltip: 'Sıra',
+                      ),
+                      DataColumn(
+                        label: Text('Mix No', style: TextStyle(fontSize: 10)),
                       ),
                       DataColumn(
                           label: Text('Ürün Kodu',

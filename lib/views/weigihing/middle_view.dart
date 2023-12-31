@@ -4,7 +4,7 @@ import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/indicators/indicator_service.dart';
 import 'package:axalta/services/weight/weight_service.dart';
-import 'package:axalta/views/weigihing/detail_view.dart';
+import 'package:axalta/views/weigihing/detail_middle_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -248,8 +248,10 @@ class _MiddeleViewState extends State<MiddeleView> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => DetailView(
+                                        builder: (context) => DetailMiddeleView(
                                           dto: getDetailDto(),
+                                          mixNoFinish:
+                                              int.parse(_mixNoFinish.text),
                                         ),
                                       ));
                                 }
@@ -277,15 +279,18 @@ class _MiddeleViewState extends State<MiddeleView> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                  height: 40,
                   color: Colors.grey[400],
                   child: DataTable(
                     headingRowHeight: 20,
                     dataRowHeight: 20,
+                    columnSpacing: 30,
                     columns: const [
                       DataColumn(
                         label: Text('Sıra', style: TextStyle(fontSize: 10)),
                         tooltip: 'Sıra',
+                      ),
+                      DataColumn(
+                        label: Text('Mix No', style: TextStyle(fontSize: 10)),
                       ),
                       DataColumn(
                           label: Text('Ürün Kodu',

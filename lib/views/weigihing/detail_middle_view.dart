@@ -3,20 +3,28 @@ import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/detail_service.dart';
 import 'package:flutter/material.dart';
 
-class DetailView extends StatefulWidget {
+class DetailMiddeleView extends StatefulWidget {
   final WeighingDetailDto dto;
+  final int mixNoFinish;
 
-  const DetailView({super.key, required this.dto});
+  const DetailMiddeleView({
+    super.key,
+    required this.dto,
+    required this.mixNoFinish,
+  });
 
   @override
-  State<DetailView> createState() => _DetailViewState();
+  State<DetailMiddeleView> createState() => _DetailMiddeleViewState();
 }
 
-class _DetailViewState extends State<DetailView> {
+class _DetailMiddeleViewState extends State<DetailMiddeleView> {
   List<WeighingProductDto> details = List.empty();
 
   getDetails() async {
-    details = await DetailService().getDetails(widget.dto);
+    details = await DetailService().getDetailsBetweenMix(
+      widget.dto,
+      widget.mixNoFinish,
+    );
   }
 
   List<DataRow> getTableRowData() {
@@ -54,7 +62,8 @@ class _DetailViewState extends State<DetailView> {
                         tooltip: 'Sıra',
                       ),
                       DataColumn(
-                        label: Text('Mix No', style: TextStyle(fontSize: 15)),
+                        label: Text('MixNo', style: TextStyle(fontSize: 15)),
+                        tooltip: 'MixNo',
                       ),
                       DataColumn(
                           label: Text('Ürün Kodu',
