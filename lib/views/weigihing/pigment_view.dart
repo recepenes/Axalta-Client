@@ -184,7 +184,6 @@ class _PigmentViewState extends State<PigmentView> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          // Birinci butonun işlevi
                           IndicatorService().sendTareToIndicator();
                           setState(() {
                             isButtonActive = true;

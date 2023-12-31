@@ -5,3 +5,4 @@ const pigmentRoute = '/pigment/';
 const detailRoute = '/detail/';
 const bluetoothRoute = '/bluetooth/';
 const indicatorRoute = '/indicator/';
+const cumulativeRoute = '/cumulative/';
