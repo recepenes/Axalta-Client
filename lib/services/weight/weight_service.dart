@@ -93,4 +93,37 @@ class ApiService {
       devtools.log("Finish Records alınırken exception: " + e.toString());
     }
   }
+
+  Future deleteRecord(WeighingDetailDto dto, String productNumber) async {
+    const path = "weighing/delete";
+    Uri uri = Uri(
+      scheme: scheme,
+      host: host,
+      port: port,
+      path: apiRoute + path,
+    );
+
+    final Map<String, Object> data = {
+      "batchNo": dto.batchNo,
+      "mixNo": dto.mixNo,
+      "lineNumber": dto.lineNumber,
+      "productNumber": productNumber,
+    };
+
+    try {
+      devtools.log("Delte Record");
+      final http.Response response = await http.post(
+        uri,
+        body: jsonEncode(data), // Verileri JSON formatına çevirin
+        headers: {
+          'Content-Type': 'application/json', // İçerik tipini belirtin
+          'Authorization': 'Bearer $userToken'
+        },
+      );
+
+      devtools.log(response.toString());
+    } catch (e) {
+      devtools.log("Delete Record exception: " + e.toString());
+    }
+  }
 }

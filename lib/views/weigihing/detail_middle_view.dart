@@ -1,6 +1,7 @@
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/detail_service.dart';
+import 'package:axalta/services/weight/weight_service.dart';
 import 'package:flutter/material.dart';
 
 class DetailMiddeleView extends StatefulWidget {
@@ -31,7 +32,29 @@ class _DetailMiddeleViewState extends State<DetailMiddeleView> {
     List<DataRow> response = List<DataRow>.empty(growable: true);
 
     for (var x in details) {
-      response.add(x.getRows());
+      response.add(DataRow(
+        cells: [
+          DataCell(Text(x.id.toString())),
+          DataCell(Text(x.mixNo.toString())),
+          DataCell(Text(x.productNumber)),
+          DataCell(Text(x.weight.toString())),
+          DataCell(
+            ElevatedButton(
+              onPressed: () async {
+                WeighingDetailDto deletingDto = WeighingDetailDto(
+                    batchNo: x.batchNo,
+                    lineNumber: x.lineNumber,
+                    mixNo: x.mixNo);
+                await ApiService().deleteRecord(deletingDto, x.productNumber);
+              },
+              child: const Text('Sil'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(20, 30),
+              ),
+            ),
+          ),
+        ],
+      ));
     }
 
     return response;
@@ -53,24 +76,24 @@ class _DetailMiddeleViewState extends State<DetailMiddeleView> {
                 child: Container(
                   color: Colors.grey[400],
                   child: DataTable(
-                    headingRowHeight: 20,
-                    dataRowHeight: 30,
-                    columnSpacing: 20,
+                    columnSpacing: 10,
                     columns: const [
                       DataColumn(
-                        label: Text('Sıra', style: TextStyle(fontSize: 15)),
+                        label: Text('Sıra', style: TextStyle(fontSize: 13)),
                         tooltip: 'Sıra',
                       ),
                       DataColumn(
-                        label: Text('MixNo', style: TextStyle(fontSize: 15)),
+                        label: Text('MixNo', style: TextStyle(fontSize: 13)),
                         tooltip: 'MixNo',
                       ),
                       DataColumn(
                           label: Text('Ürün Kodu',
-                              style: TextStyle(fontSize: 15))),
+                              style: TextStyle(fontSize: 13))),
                       DataColumn(
                           label:
-                              Text('Ağırlık', style: TextStyle(fontSize: 15))),
+                              Text('Ağırlık', style: TextStyle(fontSize: 13))),
+                      DataColumn(
+                          label: Text('Sil', style: TextStyle(fontSize: 13)))
                     ],
                     rows: getTableRowData(),
                   ),
