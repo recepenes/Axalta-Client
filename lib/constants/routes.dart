@@ -7,3 +7,4 @@ const bluetoothRoute = '/bluetooth/';
 const indicatorRoute = '/indicator/';
 const cumulativeRoute = '/cumulative/';
 const middleRoute = '/middle/';
+const changePasswordRoute = '/change-password/';

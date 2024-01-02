@@ -57,6 +57,7 @@ class _HomeViewState extends State<HomeView> {
                     }
                     break;
                   case MenuAction.changePassword:
+                    Navigator.of(context).pushNamed(changePasswordRoute);
                     break;
                   case MenuAction.indicator:
                     Navigator.of(context).pushNamed(indicatorRoute);
