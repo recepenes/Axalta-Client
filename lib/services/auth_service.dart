@@ -1,11 +1,14 @@
 import 'dart:convert';
 
+import 'package:axalta/constants/api_url.dart';
 import 'package:axalta/constants/user_token.dart';
+import 'package:axalta/model/update_user_password_dto.dart';
 import 'package:http/http.dart' as http;
 import 'package:axalta/exceptions/form_exceptions.dart';
 import 'package:axalta/exceptions/secure_storage_exceptions.dart';
 import 'package:axalta/model/user_model.dart';
 import 'package:axalta/services/helper_service.dart';
+import 'dart:developer' as devtools show log;
 
 import 'package:axalta/services/secure_storage_service.dart';
 
@@ -147,5 +150,41 @@ class AuthService {
       default:
         throw FormGeneralException(message: 'Error contacting the server!');
     }
+  }
+
+  static Future<bool> updateUserPassword(UpdateUserPasswordDto dto) async {
+    const path = "userauthentication/update-password";
+    Uri uri = Uri(
+      scheme: scheme,
+      host: host,
+      port: port,
+      path: apiRoute + path,
+    );
+
+    final Map<String, dynamic> data = {
+      "currentPassword": dto.currentPassword,
+      "newPassword": dto.newPassword,
+      "confirmPassword": dto.confirmPassword,
+    };
+
+    try {
+      final http.Response response = await http.post(
+        uri,
+        body: jsonEncode(data),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $userToken'
+        },
+      );
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        devtools.log(response.body);
+      }
+    } catch (e) {
+      devtools.log("Update password Exception" + e.toString());
+      return false;
+    }
+    return false;
   }
 }
