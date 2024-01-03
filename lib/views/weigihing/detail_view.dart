@@ -45,7 +45,14 @@ class _DetailViewState extends State<DetailView> {
                     batchNo: x.batchNo,
                     lineNumber: x.lineNumber,
                     mixNo: x.mixNo);
-                await ApiService().deleteRecord(deletingDto, x.productNumber);
+                var result = await ApiService()
+                    .deleteRecord(deletingDto, x.productNumber);
+                if (result['success']) {
+                  SnackbarHelper.showSnackbar(context, "Başarıyla Silindi");
+                } else {
+                  String errorMessage = result['errorMessage'];
+                  SnackbarHelper.showSnackbar(context, errorMessage);
+                }
               },
               child: const Text('Sil'),
               style: ElevatedButton.styleFrom(
