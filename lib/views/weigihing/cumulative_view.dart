@@ -20,8 +20,6 @@ class _CumulativeViewState extends State<CumulativeView> {
   late final TextEditingController _bacthNo;
   late final TextEditingController _mixNo;
   bool isButtonActive = false;
-  bool _isBTDeviceActive = false;
-  late Timer _timer;
 
   @override
   void initState() {
@@ -29,7 +27,6 @@ class _CumulativeViewState extends State<CumulativeView> {
     _bacthNo = TextEditingController();
     _mixNo = TextEditingController();
     super.initState();
-    _startTimer();
   }
 
   @override
@@ -37,7 +34,6 @@ class _CumulativeViewState extends State<CumulativeView> {
     _lineNo.dispose();
     _bacthNo.dispose();
     _mixNo.dispose();
-    _timer.cancel();
     super.dispose();
   }
 
@@ -48,15 +44,6 @@ class _CumulativeViewState extends State<CumulativeView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Kümülatif Çıktı"),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Icon(
-              Icons.print_sharp,
-              color: _isBTDeviceActive ? Colors.green : Colors.red,
-            ),
-          )
-        ],
       ),
       body: FutureBuilder(
         future: createNewWeighing(),
@@ -178,14 +165,5 @@ class _CumulativeViewState extends State<CumulativeView> {
         batchNo: _bacthNo.text,
         mixNo: int.parse(_mixNo.text),
         lineNumber: int.parse(_lineNo.text));
-  }
-
-  void _startTimer() async {
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
-      setState(() {
-        _isBTDeviceActive = BlueToothService.getStatus();
-        ;
-      });
-    });
   }
 }
