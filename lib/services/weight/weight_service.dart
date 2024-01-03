@@ -8,8 +8,12 @@ import 'package:http/http.dart' as http;
 import 'dart:developer' as devtools show log;
 
 class ApiService {
-  Future<WeighingProductDto> postData(WeighingProductDto dto) async {
-    WeighingProductDto weighingProduct = WeighingProductDto.empty();
+  Future<Map<String, dynamic>> postData(WeighingProductDto dto) async {
+    Map<String, dynamic> result = {
+      'success': false,
+      'weighingProduct': WeighingProductDto.empty(),
+      'errorMessage': '',
+    };
 
     const path = "weighing";
     Uri uri = Uri(
@@ -36,9 +40,9 @@ class ApiService {
       });
       final http.Response response = await http.post(
         modifiedUri,
-        body: jsonEncode(data), // Verileri JSON formatına çevirin
+        body: jsonEncode(data),
         headers: {
-          'Content-Type': 'application/json', // İçerik tipini belirtin
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer $userToken'
         },
       );
@@ -47,22 +51,29 @@ class ApiService {
 
       Map<String, dynamic> jsonMap = json.decode(jsonStr);
 
-      weighingProduct = WeighingProductDto.fromJson(jsonMap);
+      WeighingProductDto weighingProduct = WeighingProductDto.fromJson(jsonMap);
 
       if (response.statusCode == 200) {
-        return weighingProduct;
+        result['success'] = true;
+        result['weighingProduct'] = weighingProduct;
+        return result;
       } else {
-        devtools.log('Kayıt alınırken bir hata oluştu: ${response.statusCode}');
-        devtools.log(response.body);
-        return weighingProduct;
+        result['errorMessage'] =
+            'Kayıt alınırken bir hata oluştu: ${response.statusCode}';
+        return result;
       }
     } catch (e) {
-      devtools.log("Kayıt alınırken exception: " + e.toString());
+      result['errorMessage'] = 'Kayıt alınırken exception: ' + e.toString();
+      return result;
     }
-    return weighingProduct;
   }
 
-  Future finishRecord(WeighingDetailDto dto) async {
+  Future<Map<String, dynamic>> finishRecord(WeighingDetailDto dto) async {
+    Map<String, dynamic> result = {
+      'success': false,
+      'errorMessage': '',
+    };
+
     const path = "weighing/finish";
     Uri uri = Uri(
       scheme: scheme,
@@ -88,13 +99,28 @@ class ApiService {
         },
       );
 
-      devtools.log(response.body);
+      if (response.statusCode == 200) {
+        result['success'] = true;
+        return result;
+      } else {
+        result['errorMessage'] =
+            'Finish Records alınırken bir hata oluştu: ${response.statusCode}';
+        return result;
+      }
     } catch (e) {
-      devtools.log("Finish Records alınırken exception: " + e.toString());
+      result['errorMessage'] =
+          'Finish Records alınırken exception: ' + e.toString();
+      return result;
     }
   }
 
-  Future deleteRecord(WeighingDetailDto dto, String productNumber) async {
+  Future<Map<String, dynamic>> deleteRecord(
+      WeighingDetailDto dto, String productNumber) async {
+    Map<String, dynamic> result = {
+      'success': false,
+      'errorMessage': '',
+    };
+
     const path = "weighing/delete";
     Uri uri = Uri(
       scheme: scheme,
@@ -121,9 +147,17 @@ class ApiService {
         },
       );
 
-      devtools.log(response.toString());
+      if (response.statusCode == 200) {
+        result['success'] = true;
+        return result;
+      } else {
+        result['errorMessage'] =
+            'Delete Record alınırken bir hata oluştu: ${response.statusCode}';
+        return result;
+      }
     } catch (e) {
-      devtools.log("Delete Record exception: " + e.toString());
+      result['errorMessage'] = 'Delete Record exception: ' + e.toString();
+      return result;
     }
   }
 }

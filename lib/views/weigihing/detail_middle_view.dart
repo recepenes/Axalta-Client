@@ -2,6 +2,7 @@ import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/detail_service.dart';
 import 'package:axalta/services/weight/weight_service.dart';
+import 'package:axalta/views/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
 
 class DetailMiddeleView extends StatefulWidget {
@@ -22,10 +23,17 @@ class _DetailMiddeleViewState extends State<DetailMiddeleView> {
   List<WeighingProductDto> details = List.empty();
 
   getDetails() async {
-    details = await DetailService().getDetailsBetweenMix(
+    var result = await DetailService().getDetailsBetweenMix(
       widget.dto,
       widget.mixNoFinish,
     );
+
+    if (result['success']) {
+      details = result['details'];
+    } else {
+      String errorMessage = result['errorMessage'];
+      SnackbarHelper.showSnackbar(context, errorMessage);
+    }
   }
 
   List<DataRow> getTableRowData() {
@@ -45,7 +53,14 @@ class _DetailMiddeleViewState extends State<DetailMiddeleView> {
                     batchNo: x.batchNo,
                     lineNumber: x.lineNumber,
                     mixNo: x.mixNo);
-                await ApiService().deleteRecord(deletingDto, x.productNumber);
+                var result = await ApiService()
+                    .deleteRecord(deletingDto, x.productNumber);
+                if (result['success']) {
+                  SnackbarHelper.showSnackbar(context, "Başarıyla Silindi");
+                } else {
+                  String errorMessage = result['errorMessage'];
+                  SnackbarHelper.showSnackbar(context, errorMessage);
+                }
               },
               child: const Text('Sil'),
               style: ElevatedButton.styleFrom(

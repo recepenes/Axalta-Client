@@ -89,7 +89,8 @@ class BlueToothService {
       final generator = Generator(PaperSize.mm80, profile);
       List<int> bytes = [];
 
-      List<WeighingProductDto> reports = await DetailService().getDetails(dto);
+      List<WeighingProductDto> reports =
+          (await DetailService().getDetails(dto))["details"];
 
       if (reports.isEmpty) {
         devtools.log("Rapor detayı bulunamadı");
@@ -137,8 +138,7 @@ class BlueToothService {
       final resp = await printer.printData(bytes, address: address);
       if (!resp.success) {
         connected = false;
-      } else {
-      }
+      } else {}
       devtools.log("bt info: " + resp.message);
     } catch (e) {
       connected = false;

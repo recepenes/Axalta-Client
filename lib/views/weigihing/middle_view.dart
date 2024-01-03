@@ -4,6 +4,7 @@ import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/indicators/indicator_service.dart';
 import 'package:axalta/services/weight/weight_service.dart';
+import 'package:axalta/views/snack_bar_helper.dart';
 import 'package:axalta/views/weigihing/detail_middle_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -214,9 +215,18 @@ class _MiddeleViewState extends State<MiddeleView> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.saveAndValidate()) {
-                            IndicatorService().sendTareToIndicator();
+                            var result =
+                                await IndicatorService().sendTareToIndicator();
+                            if (result['success']) {
+                              SnackbarHelper.showSnackbar(
+                                  context, "Dara Başarılı");
+                            } else {
+                              String errorMessage = result['errorMessage'];
+                              SnackbarHelper.showSnackbar(
+                                  context, errorMessage);
+                            }
                             _currentMixNo = int.parse(_mixNoStart.text);
 
                             setState(() {
@@ -252,8 +262,17 @@ class _MiddeleViewState extends State<MiddeleView> {
                             ? () async {
                                 if (_formKey.currentState!.saveAndValidate()) {
                                   await recordWeight(getWeighingDto());
-                                  await IndicatorService()
+                                  var result = await IndicatorService()
                                       .sendTareToIndicator();
+                                  if (result['success']) {
+                                    SnackbarHelper.showSnackbar(
+                                        context, "Dara Başarılı");
+                                  } else {
+                                    String errorMessage =
+                                        result['errorMessage'];
+                                    SnackbarHelper.showSnackbar(
+                                        context, errorMessage);
+                                  }
                                   _checkCurrentMixNo();
                                 }
                               }
@@ -345,9 +364,15 @@ class _MiddeleViewState extends State<MiddeleView> {
   }
 
   Future recordWeight(WeighingProductDto dto) async {
-    var mock = await ApiService().postData(dto);
+    var result = await ApiService().postData(dto);
+
     setState(() {
-      lastRecord = mock;
+      if (result['success']) {
+        lastRecord = result['weighingProduct'];
+      } else {
+        String errorMessage = result['errorMessage'];
+        SnackbarHelper.showSnackbar(context, errorMessage);
+      }
     });
   }
 

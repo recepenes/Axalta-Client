@@ -4,6 +4,7 @@ import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/indicators/indicator_service.dart';
 import 'package:axalta/services/weight/weight_service.dart';
+import 'package:axalta/views/snack_bar_helper.dart';
 import 'package:axalta/views/weigihing/detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -174,8 +175,16 @@ class _PigmentViewState extends State<PigmentView> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          IndicatorService().sendTareToIndicator();
+                        onPressed: () async {
+                          var result =
+                              await IndicatorService().sendTareToIndicator();
+                          if (result['success']) {
+                            SnackbarHelper.showSnackbar(
+                                context, "Dara Başarılı");
+                          } else {
+                            String errorMessage = result['errorMessage'];
+                            SnackbarHelper.showSnackbar(context, errorMessage);
+                          }
                           setState(() {
                             isButtonActive = true;
                           });
@@ -205,8 +214,17 @@ class _PigmentViewState extends State<PigmentView> {
                             ? () async {
                                 if (_formKey.currentState!.saveAndValidate()) {
                                   await recordWeight(getWeighingDto());
-                                  await IndicatorService()
+                                  var result = await IndicatorService()
                                       .sendTareToIndicator();
+                                  if (result['success']) {
+                                    SnackbarHelper.showSnackbar(
+                                        context, "Dara Başarılı");
+                                  } else {
+                                    String errorMessage =
+                                        result['errorMessage'];
+                                    SnackbarHelper.showSnackbar(
+                                        context, errorMessage);
+                                  }
                                   _changeQrCodeBackgroundColor();
                                 }
                               }
@@ -264,7 +282,16 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
-                                await ApiService().finishRecord(getDetailDto());
+                                var result = await ApiService()
+                                    .finishRecord(getDetailDto());
+                                if (result['success']) {
+                                  SnackbarHelper.showSnackbar(
+                                      context, "Kayıt İşlemi Başarılı");
+                                } else {
+                                  String errorMessage = result['errorMessage'];
+                                  SnackbarHelper.showSnackbar(
+                                      context, errorMessage);
+                                }
                                 BlueToothService.setDto(getDetailDto());
                                 await BlueToothService.startTimer();
                                 _finishWeighing();
@@ -295,9 +322,15 @@ class _PigmentViewState extends State<PigmentView> {
   Future recordWeight(WeighingProductDto dto) async {
     _qrCode.clear();
 
-    var mock = await ApiService().postData(dto);
+    var result = await ApiService().postData(dto);
+
     setState(() {
-      lastRecord = mock;
+      if (result['success']) {
+        lastRecord = result['weighingProduct'];
+      } else {
+        String errorMessage = result['errorMessage'];
+        SnackbarHelper.showSnackbar(context, errorMessage);
+      }
     });
   }
 
