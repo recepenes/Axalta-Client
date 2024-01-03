@@ -1,6 +1,7 @@
 import 'package:axalta/constants/indicator.dart';
 import 'package:axalta/model/indicator_dto.dart';
 import 'package:axalta/services/indicators/indicator_service.dart';
+import 'package:axalta/views/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
 
 class IndicatorView extends StatefulWidget {
@@ -120,7 +121,14 @@ class _IndicatorViewState extends State<IndicatorView> {
   }
 
   getAllIndicators() async {
-    devices = await IndicatorService().getAllIndicators();
+    var result = await IndicatorService().getAllIndicators();
+
+    if (result['success']) {
+      devices = result['indicators'];
+    } else {
+      String errorMessage = result['errorMessage'];
+      SnackbarHelper.showSnackbar(context, errorMessage);
+    }
   }
 
   Future getLocalIndicator() async {

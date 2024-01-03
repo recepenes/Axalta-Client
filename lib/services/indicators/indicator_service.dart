@@ -11,7 +11,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class IndicatorService {
   static List<IndicatorDto> indicators = List.empty();
 
-  Future<List<IndicatorDto>> getAllIndicators() async {
+  Future<Map<String, dynamic>> getAllIndicators() async {
+    Map<String, dynamic> result = {
+      'success': false,
+      'indicators': List<IndicatorDto>.empty(),
+      'errorMessage': '',
+    };
+
     const path = "indicator";
     Uri uri = Uri(
       scheme: scheme,
@@ -19,6 +25,7 @@ class IndicatorService {
       port: port,
       path: apiRoute + path,
     );
+
     try {
       devtools.log("Get All Indicators");
       final http.Response response = await http.get(
@@ -38,21 +45,27 @@ class IndicatorService {
           .toList();
 
       if (response.statusCode == 200) {
-        return indicators;
+        result['success'] = true;
+        result['indicators'] = indicators;
+        return result;
       } else {
-        devtools.log(
-            'Indicators alınırken bir hata oluştu: ${response.statusCode}');
-        devtools.log(response.body);
-        return indicators;
+        result['errorMessage'] =
+            'Indicators alınırken bir hata oluştu: ${response.statusCode}';
+        return result;
       }
     } catch (e) {
-      devtools.log("Indicators alınırken exception : " + e.toString());
+      result['errorMessage'] =
+          'Indicators alınırken exception : ' + e.toString();
+      return result;
     }
-
-    return indicators;
   }
 
-  Future sendTareToIndicator() async {
+  Future<Map<String, dynamic>> sendTareToIndicator() async {
+    Map<String, dynamic> result = {
+      'success': false,
+      'errorMessage': '',
+    };
+
     try {
       const path = "indicator/settare";
       Uri uri = Uri(
@@ -73,13 +86,17 @@ class IndicatorService {
           'Authorization': 'Bearer $userToken'
         },
       );
-      if (response.statusCode != 200) {
-        devtools.log('Tare alınırken bir hata oluştu: ${response.statusCode}');
-        devtools.log(response.body);
+      if (response.statusCode == 200) {
+        result['success'] = true;
+      } else {
+        result['errorMessage'] =
+            'Tare alınırken bir hata oluştu: ${response.statusCode}';
       }
     } catch (e) {
-      devtools.log("Tare alınırken exception: " + e.toString());
+      result['errorMessage'] = 'Tare alınırken exception: ' + e.toString();
     }
+
+    return result;
   }
 
   Future<IndicatorDto> getSavedIndicator() async {

@@ -175,8 +175,16 @@ class _PigmentViewState extends State<PigmentView> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          IndicatorService().sendTareToIndicator();
+                        onPressed: () async {
+                          var result =
+                              await IndicatorService().sendTareToIndicator();
+                          if (result['success']) {
+                            SnackbarHelper.showSnackbar(
+                                context, "Dara Başarılı");
+                          } else {
+                            String errorMessage = result['errorMessage'];
+                            SnackbarHelper.showSnackbar(context, errorMessage);
+                          }
                           setState(() {
                             isButtonActive = true;
                           });
@@ -206,8 +214,17 @@ class _PigmentViewState extends State<PigmentView> {
                             ? () async {
                                 if (_formKey.currentState!.saveAndValidate()) {
                                   await recordWeight(getWeighingDto());
-                                  await IndicatorService()
+                                  var result = await IndicatorService()
                                       .sendTareToIndicator();
+                                  if (result['success']) {
+                                    SnackbarHelper.showSnackbar(
+                                        context, "Dara Başarılı");
+                                  } else {
+                                    String errorMessage =
+                                        result['errorMessage'];
+                                    SnackbarHelper.showSnackbar(
+                                        context, errorMessage);
+                                  }
                                   _changeQrCodeBackgroundColor();
                                 }
                               }
