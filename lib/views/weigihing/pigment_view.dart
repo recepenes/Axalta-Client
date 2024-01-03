@@ -278,8 +278,8 @@ class _PigmentViewState extends State<PigmentView> {
                         onPressed: isButtonActive
                             ? () async {
                                 await ApiService().finishRecord(getDetailDto());
-                                BlueToothService().setDto(getDetailDto());
-                                await BlueToothService().startTimer();
+                                BlueToothService.setDto(getDetailDto());
+                                await BlueToothService.startTimer();
                                 _finishWeighing();
                               }
                             : null,
@@ -362,7 +362,7 @@ class _PigmentViewState extends State<PigmentView> {
     _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
       // Burada her 5 saniyede bir çalışmasını istediğiniz işlemi gerçekleştirin
       setState(() {
-        _isBTDeviceActive = BlueToothService().getStatus();
+        _isBTDeviceActive = BlueToothService.getStatus();
         ;
       });
     });

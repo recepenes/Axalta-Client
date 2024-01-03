@@ -26,7 +26,7 @@ class _DetailViewState extends State<DetailView> {
     for (var x in details) {
       response.add(DataRow(
         cells: [
-          DataCell(Text(x.id.toString())),
+          DataCell(Text(x.sequenceNumber.toString())),
           DataCell(Text(x.mixNo.toString())),
           DataCell(Text(x.productNumber)),
           DataCell(Text(x.weight.toString())),

@@ -25,7 +25,7 @@ void main() {
   HttpOverrides.global = MyHttpOverrides();
   runApp(const App());
   Future.delayed(Duration.zero, () async {
-    await BlueToothService().autoBtConnect();
+    await BlueToothService.autoBtConnect();
     var indicator = await IndicatorService().loadIndicatorIdFromDevice();
     indicatorName = indicator['indicatorName'];
     indicatorId = indicator['indicatorId'];

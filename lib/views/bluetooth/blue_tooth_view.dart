@@ -11,7 +11,7 @@ class BlueToothView extends StatefulWidget {
 }
 
 class _BlueToothViewState extends State<BlueToothView> {
-  FpBtPrinter printer = BlueToothService().getPrinter();
+  FpBtPrinter printer = BlueToothService.getPrinter();
   List<PrinterDevice> devices = List<PrinterDevice>.empty(growable: true);
   // ignore: unused_field
   static PrinterDevice? device;
@@ -43,7 +43,7 @@ class _BlueToothViewState extends State<BlueToothView> {
           const Text("Bağlanmış Bluetooth cihazları ara"),
           TextButton(
             onPressed: () async {
-              devices = await BlueToothService().getDevices();
+              devices = await BlueToothService.getDevices();
               setState(() {
                 devices = devices;
               });
@@ -63,10 +63,10 @@ class _BlueToothViewState extends State<BlueToothView> {
                     return ListTile(
                       leading: const Icon(Icons.print_rounded),
                       onTap: () async {
-                        await BlueToothService().setConnet(devices[index]);
+                        await BlueToothService.setConnet(devices[index]);
 
                         setState(() {
-                          device = BlueToothService().getDevice();
+                          device = BlueToothService.getDevice();
                         });
                       },
                       title: Text(
@@ -92,7 +92,7 @@ class _BlueToothViewState extends State<BlueToothView> {
                       padding: const EdgeInsets.all(8.0),
                       child: Icon(
                         Icons.print_rounded,
-                        color: BlueToothService().getStatus()
+                        color: BlueToothService.getStatus()
                             ? Colors.green
                             : Colors.red,
                       ),
@@ -101,19 +101,19 @@ class _BlueToothViewState extends State<BlueToothView> {
                   ListTile(
                     minVerticalPadding: 5,
                     dense: true,
-                    title: BlueToothService().getStatus()
+                    title: BlueToothService.getStatus()
                         ? Center(
-                            child: Text(BlueToothService().getDevice()!.name!))
+                            child: Text(BlueToothService.getDevice()!.name!))
                         : const Center(child: Text("Secili cihaz yok")),
-                    subtitle: BlueToothService().getStatus()
+                    subtitle: BlueToothService.getStatus()
                         ? Center(
                             child:
-                                Text(BlueToothService().getDevice()!.address))
+                                Text(BlueToothService.getDevice()!.address))
                         : const Center(
                             child: Text("Lütfen SPP-R310 cihazını seçin")),
                   ),
                   TextButton(
-                    onPressed: BlueToothService().getStatus()
+                    onPressed: BlueToothService.getStatus()
                         ? () {
                             /*WeighingDetailDto dto = WeighingDetailDto(
                                 batchNo: "2345", mixNo: 1, lineNumber: 34);

@@ -249,7 +249,8 @@ class _MiddeleViewState extends State<MiddeleView> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => DetailMiddeleView(
-                                          dto: getDetailDto(),
+                                          dto: getDetailDto(
+                                              int.parse(_mixNoStart.text)),
                                           mixNoFinish:
                                               int.parse(_mixNoFinish.text),
                                         ),
@@ -322,9 +323,15 @@ class _MiddeleViewState extends State<MiddeleView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
-                                await ApiService().finishRecord(getDetailDto());
-                                BlueToothService().setDto(getDetailDto());
-                                await BlueToothService().startTimer();
+                                for (int i = int.parse(_mixNoStart.text);
+                                    i <= int.parse(_mixNoFinish.text);
+                                    i++) {
+                                  await ApiService()
+                                      .finishRecord(getDetailDto(i));
+                                  BlueToothService.setDto(getDetailDto(i));
+                                }
+
+                                await BlueToothService.startTimer();
                                 _finishWeighing();
                               }
                             : null,
@@ -359,10 +366,10 @@ class _MiddeleViewState extends State<MiddeleView> {
 
   createNewWeighing() {}
 
-  WeighingDetailDto getDetailDto() {
+  WeighingDetailDto getDetailDto(int _mixNo) {
     return WeighingDetailDto(
         batchNo: _bacthNo.text,
-        mixNo: int.parse(_mixNoStart.text),
+        mixNo: _mixNo,
         lineNumber: int.parse(_lineNo.text));
   }
 
@@ -422,7 +429,7 @@ class _MiddeleViewState extends State<MiddeleView> {
     _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
       // Burada her 5 saniyede bir çalışmasını istediğiniz işlemi gerçekleştirin
       setState(() {
-        _isBTDeviceActive = BlueToothService().getStatus();
+        _isBTDeviceActive = BlueToothService.getStatus();
         ;
       });
     });

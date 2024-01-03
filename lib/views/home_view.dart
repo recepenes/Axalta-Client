@@ -20,7 +20,7 @@ class _HomeViewState extends State<HomeView> {
   bool isBTDeviceActive = false;
   @override
   void initState() {
-    isBTDeviceActive = BlueToothService().getStatus();
+    isBTDeviceActive = BlueToothService.getStatus();
     super.initState();
   }
 

@@ -145,8 +145,8 @@ class _CumulativeViewState extends State<CumulativeView> {
                       ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.saveAndValidate()) {
-                            BlueToothService().setDto(getDetailDto());
-                            await BlueToothService().startTimer();
+                            BlueToothService.setDto(getDetailDto());
+                            await BlueToothService.startTimer();
                           }
                         },
                         child: const Text('Çıktı Al'),
@@ -183,7 +183,7 @@ class _CumulativeViewState extends State<CumulativeView> {
   void _startTimer() async {
     _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
       setState(() {
-        _isBTDeviceActive = BlueToothService().getStatus();
+        _isBTDeviceActive = BlueToothService.getStatus();
         ;
       });
     });
