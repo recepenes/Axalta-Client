@@ -2,6 +2,7 @@ import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/detail_service.dart';
 import 'package:axalta/services/weight/weight_service.dart';
+import 'package:axalta/views/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
 
 class DetailView extends StatefulWidget {
@@ -17,7 +18,14 @@ class _DetailViewState extends State<DetailView> {
   List<WeighingProductDto> details = List.empty();
 
   getDetails() async {
-    details = await DetailService().getDetails(widget.dto);
+    var result = await DetailService().getDetails(widget.dto);
+
+    if (result['success']) {
+      details = result['details'];
+    } else {
+      String errorMessage = result['errorMessage'];
+      SnackbarHelper.showSnackbar(context, errorMessage);
+    }
   }
 
   List<DataRow> getTableRowData() {

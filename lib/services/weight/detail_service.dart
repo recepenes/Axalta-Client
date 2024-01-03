@@ -8,8 +8,12 @@ import 'package:http/http.dart' as http;
 import 'dart:developer' as devtools show log;
 
 class DetailService {
-  Future<List<WeighingProductDto>> getDetails(WeighingDetailDto dto) async {
-    List<WeighingProductDto> details = List.empty();
+  Future<Map<String, dynamic>> getDetails(WeighingDetailDto dto) async {
+    Map<String, dynamic> result = {
+      'success': false,
+      'details': List<WeighingProductDto>.empty(),
+      'errorMessage': '',
+    };
 
     const path = "weighing/detail";
     Uri uri = Uri(
@@ -39,29 +43,37 @@ class DetailService {
       String jsonStr = response.body;
 
       List<dynamic> jsonList = jsonDecode(jsonStr);
-      details = jsonList
+      var details = jsonList
           .map((dynamic e) =>
               WeighingProductDto.fromJson(e as Map<String, dynamic>))
           .toList();
 
       if (response.statusCode == 200) {
-        return details;
+        result['success'] = true;
+        result['details'] = details;
+        return result;
       } else {
         devtools
             .log('Detaylar alınırken bir hata oluştu: ${response.statusCode}');
-        devtools.log(response.body);
-        return details;
+        result['errorMessage'] =
+            'Detaylar alınırken bir hata oluştu: ${response.statusCode}';
+        result['details'] = details;
+        return result;
       }
     } catch (e) {
-      devtools.log("Detaylar alınırken bir hata oluştu: " + e.toString());
+      devtools.log("Detaylar alınırken exception: " + e.toString());
+      result['errorMessage'] = 'Detaylar alınırken excepiton: ' + e.toString();
+      return result;
     }
-
-    return details;
   }
 
-  Future<List<WeighingProductDto>> getDetailsBetweenMix(
+  Future<Map<String, dynamic>> getDetailsBetweenMix(
       WeighingDetailDto dto, int mixNoFish) async {
-    List<WeighingProductDto> details = List.empty();
+    Map<String, dynamic> result = {
+      'success': false,
+      'details': List<WeighingProductDto>.empty(),
+      'errorMessage': '',
+    };
 
     const path = "weighing/detail/middle";
     Uri uri = Uri(
@@ -92,23 +104,28 @@ class DetailService {
       String jsonStr = response.body;
 
       List<dynamic> jsonList = jsonDecode(jsonStr);
-      details = jsonList
+      var details = jsonList
           .map((dynamic e) =>
               WeighingProductDto.fromJson(e as Map<String, dynamic>))
           .toList();
 
       if (response.statusCode == 200) {
-        return details;
+        result['success'] = true;
+        result['details'] = details;
+        return result;
       } else {
-        devtools
-            .log('Detaylar alınırken bir hata oluştu: ${response.statusCode}');
-        devtools.log(response.body);
-        return details;
+        devtools.log(
+            'Detaylar aralık ile alınırken bir hata oluştu: ${response.statusCode}');
+        result['errorMessage'] =
+            'Detaylar aralık ile  alınırken bir hata oluştu: ${response.statusCode}';
+        result['details'] = details;
+        return result;
       }
     } catch (e) {
-      devtools.log("Detaylar alınırken bir hata oluştu: " + e.toString());
+      devtools.log("Detaylar aralık ile alınırken exception: " + e.toString());
+      result['errorMessage'] =
+          'Detaylar aralık ile alınırken excepiton: ' + e.toString();
+      return result;
     }
-
-    return details;
   }
 }
