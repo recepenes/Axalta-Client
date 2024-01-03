@@ -15,48 +15,53 @@ class BlueToothService {
   static PrinterDevice? device;
   static bool connected = false;
   static Timer? _timer;
-  static WeighingDetailDto tempDto = WeighingDetailDto.empty();
+  static List<WeighingDetailDto> tempDto =
+      List<WeighingDetailDto>.empty(growable: true);
 
   static FpBtPrinter printer = FpBtPrinter();
 
-  Future startTimer() async {
+  static Future startTimer() async {
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
       await connectAndPrint();
     });
   }
 
-  void _stopTimer() {
-    // Timer'ı durdurun
+  static void _stopTimer() {
     _timer?.cancel();
   }
 
-  Future connectAndPrint() async {
+  static Future connectAndPrint() async {
     await setConnet(devices[0]);
-    await printTicket();
+    if (getStatus()) {
+      _stopTimer();
+
+      for (WeighingDetailDto x in tempDto) {
+        await printTicket(x);
+      }
+      tempDto.clear();
+    }
   }
 
-  Future setDto(WeighingDetailDto dto) async => tempDto = dto;
+  static void setDto(WeighingDetailDto dto) => tempDto.add(dto);
 
-  WeighingDetailDto getDto() => tempDto;
-
-  Future<void> autoBtConnect() async {
+  static Future<void> autoBtConnect() async {
     await getDevices();
     await setConnet(devices[0]);
   }
 
-  FpBtPrinter getPrinter() {
+  static FpBtPrinter getPrinter() {
     return printer;
   }
 
-  bool getStatus() {
+  static bool getStatus() {
     return connected;
   }
 
-  PrinterDevice? getDevice() {
+  static PrinterDevice? getDevice() {
     return device;
   }
 
-  Future<List<PrinterDevice>> getDevices() async {
+  static Future<List<PrinterDevice>> getDevices() async {
     final response = await printer.scanBondedDevices();
 
     devices = response;
@@ -64,7 +69,7 @@ class BlueToothService {
     return devices;
   }
 
-  Future<void> setConnet(PrinterDevice d) async {
+  static Future<void> setConnet(PrinterDevice d) async {
     if (devices[0].name == "SPP-R310") {
       final response = await printer.checkConnection(d.address);
       if (response.success) {
@@ -76,10 +81,9 @@ class BlueToothService {
     }
   }
 
-  Future<void> printTicket() async {
+  static Future<void> printTicket(WeighingDetailDto dto) async {
     try {
       String address = device!.address;
-      WeighingDetailDto dto = getDto();
 
       final profile = await CapabilityProfile.load();
       final generator = Generator(PaperSize.mm80, profile);
@@ -98,13 +102,14 @@ class BlueToothService {
 
       bytes += generator.text("Tarih Saat:" + DateTime.now().toString(),
           styles: const PosStyles(align: PosAlign.left));
-      bytes += generator.text("Operator: Enes",
+      bytes += generator.text("Operator: ${convertTurkishToEnglish("Enes")}",
           styles: const PosStyles(align: PosAlign.left));
-      bytes += generator.text("Tarti: $indicatorName",
+      bytes += generator.text(
+          "Tarti: ${convertTurkishToEnglish(indicatorName)}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text('Hat No: $lineNumber',
           styles: const PosStyles(align: PosAlign.left));
-      bytes += generator.text("Batch No: $batchNo",
+      bytes += generator.text("Batch No: ${convertTurkishToEnglish(batchNo)}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text("Mix No: $mixNo",
           styles: const PosStyles(align: PosAlign.left));
@@ -116,7 +121,7 @@ class BlueToothService {
           styles: const PosStyles(align: PosAlign.left));
       for (var x in reports) {
         bytes += generator.text(
-            '${x.sequenceNumber}${addWhiteSpaceBySequence(x.sequenceNumber.toString())}${x.productNumber}${addWhiteSpace(x.productNumber.toString())}${x.weight}',
+            '${x.sequenceNumber}${addWhiteSpaceBySequence(x.sequenceNumber.toString())}${convertTurkishToEnglish(x.productNumber)}${addWhiteSpace(x.productNumber.toString())}${x.weight}',
             styles: const PosStyles(align: PosAlign.left));
       }
 
@@ -133,16 +138,15 @@ class BlueToothService {
       if (!resp.success) {
         connected = false;
       } else {
-        _stopTimer();
       }
-      devtools.log(resp.message);
+      devtools.log("bt info: " + resp.message);
     } catch (e) {
       connected = false;
       devtools.log("Yazdırılamadı");
     }
   }
 
-  String addWhiteSpace(String str) {
+  static String addWhiteSpace(String str) {
     String whiteSpace = "";
     for (int i = 0; i < 26 - str.length; i++) {
       whiteSpace += " ";
@@ -151,12 +155,34 @@ class BlueToothService {
     return whiteSpace;
   }
 
-  String addWhiteSpaceBySequence(String str) {
+  static String addWhiteSpaceBySequence(String str) {
     String whiteSpace = "";
     for (int i = 0; i < 7 - str.length; i++) {
       whiteSpace += " ";
     }
 
     return whiteSpace;
+  }
+
+  static String convertTurkishToEnglish(String input) {
+    final Map<String, String> turkishToEnglishMap = {
+      'İ': 'I',
+      'ı': 'i',
+      'Ç': 'C',
+      'ç': 'c',
+      'Ş': 'S',
+      'ş': 's',
+      'Ğ': 'G',
+      'ğ': 'g',
+      'Ü': 'U',
+      'ü': 'u',
+      'Ö': 'O',
+      'ö': 'o',
+    };
+
+    return input.replaceAllMapped(
+      RegExp('[İıÇçŞşĞğÜüÖö]'),
+      (match) => turkishToEnglishMap[match.group(0)]!,
+    );
   }
 }

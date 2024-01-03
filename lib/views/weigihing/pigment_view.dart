@@ -31,8 +31,6 @@ class _PigmentViewState extends State<PigmentView> {
   bool isButtonActive = false;
   Color _backgroundColor = Colors.transparent;
   String _qrCodeLabelText = "Ürün Barkodu Okut";
-  bool _isBTDeviceActive = false;
-  late Timer _timer;
 
   @override
   void initState() {
@@ -44,7 +42,6 @@ class _PigmentViewState extends State<PigmentView> {
     _weight = TextEditingController();
     _qrCode = TextEditingController();
     super.initState();
-    _startTimer();
   }
 
   @override
@@ -56,7 +53,6 @@ class _PigmentViewState extends State<PigmentView> {
     _sequenceNo.dispose();
     _weight.dispose();
     _qrCode.dispose();
-    _timer.cancel();
     super.dispose();
   }
 
@@ -67,15 +63,6 @@ class _PigmentViewState extends State<PigmentView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Pigment Tartım"),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Icon(
-              Icons.print_sharp,
-              color: _isBTDeviceActive ? Colors.green : Colors.red,
-            ),
-          )
-        ],
       ),
       body: FutureBuilder(
         future: createNewWeighing(),
@@ -278,8 +265,8 @@ class _PigmentViewState extends State<PigmentView> {
                         onPressed: isButtonActive
                             ? () async {
                                 await ApiService().finishRecord(getDetailDto());
-                                BlueToothService().setDto(getDetailDto());
-                                await BlueToothService().startTimer();
+                                BlueToothService.setDto(getDetailDto());
+                                await BlueToothService.startTimer();
                                 _finishWeighing();
                               }
                             : null,
@@ -354,17 +341,6 @@ class _PigmentViewState extends State<PigmentView> {
       isButtonActive = false;
       _backgroundColor = Colors.transparent;
       _qrCodeLabelText = "Ürün Barkodu Okut";
-    });
-  }
-
-  void _startTimer() async {
-    // Timer'ı 5 saniyede bir çalıştırmak için ayarlayın
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
-      // Burada her 5 saniyede bir çalışmasını istediğiniz işlemi gerçekleştirin
-      setState(() {
-        _isBTDeviceActive = BlueToothService().getStatus();
-        ;
-      });
     });
   }
 }

@@ -32,8 +32,6 @@ class _MiddeleViewState extends State<MiddeleView> {
   bool isButtonActive = false;
   Color _backgroundColor = Colors.transparent;
   String _qrCodeLabelText = "Ürün Barkodu Okut";
-  bool _isBTDeviceActive = false;
-  late Timer _timer;
   int _currentMixNo = 0;
 
   @override
@@ -47,7 +45,6 @@ class _MiddeleViewState extends State<MiddeleView> {
     _weight = TextEditingController();
     _qrCode = TextEditingController();
     super.initState();
-    _startTimer();
   }
 
   @override
@@ -59,7 +56,6 @@ class _MiddeleViewState extends State<MiddeleView> {
     _sequenceNo.dispose();
     _weight.dispose();
     _qrCode.dispose();
-    _timer.cancel();
     super.dispose();
   }
 
@@ -70,15 +66,6 @@ class _MiddeleViewState extends State<MiddeleView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Ara Tartım 1"),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Icon(
-              Icons.print_sharp,
-              color: _isBTDeviceActive ? Colors.green : Colors.red,
-            ),
-          )
-        ],
       ),
       body: FutureBuilder(
         future: createNewWeighing(),
@@ -249,7 +236,8 @@ class _MiddeleViewState extends State<MiddeleView> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => DetailMiddeleView(
-                                          dto: getDetailDto(),
+                                          dto: getDetailDto(
+                                              int.parse(_mixNoStart.text)),
                                           mixNoFinish:
                                               int.parse(_mixNoFinish.text),
                                         ),
@@ -322,9 +310,15 @@ class _MiddeleViewState extends State<MiddeleView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
-                                await ApiService().finishRecord(getDetailDto());
-                                BlueToothService().setDto(getDetailDto());
-                                await BlueToothService().startTimer();
+                                for (int i = int.parse(_mixNoStart.text);
+                                    i <= int.parse(_mixNoFinish.text);
+                                    i++) {
+                                  await ApiService()
+                                      .finishRecord(getDetailDto(i));
+                                  BlueToothService.setDto(getDetailDto(i));
+                                }
+
+                                await BlueToothService.startTimer();
                                 _finishWeighing();
                               }
                             : null,
@@ -359,10 +353,10 @@ class _MiddeleViewState extends State<MiddeleView> {
 
   createNewWeighing() {}
 
-  WeighingDetailDto getDetailDto() {
+  WeighingDetailDto getDetailDto(int _mixNo) {
     return WeighingDetailDto(
         batchNo: _bacthNo.text,
-        mixNo: int.parse(_mixNoStart.text),
+        mixNo: _mixNo,
         lineNumber: int.parse(_lineNo.text));
   }
 
@@ -414,17 +408,6 @@ class _MiddeleViewState extends State<MiddeleView> {
       isButtonActive = false;
       _backgroundColor = Colors.transparent;
       _qrCodeLabelText = "Ürün Barkodu Okut";
-    });
-  }
-
-  void _startTimer() async {
-    // Timer'ı 5 saniyede bir çalıştırmak için ayarlayın
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
-      // Burada her 5 saniyede bir çalışmasını istediğiniz işlemi gerçekleştirin
-      setState(() {
-        _isBTDeviceActive = BlueToothService().getStatus();
-        ;
-      });
     });
   }
 }

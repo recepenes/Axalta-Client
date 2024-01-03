@@ -3,7 +3,6 @@
 import 'package:axalta/blocs/auth/auth_bloc.dart';
 import 'package:axalta/constants/routes.dart';
 import 'package:axalta/enums/menu_action.dart';
-import 'package:axalta/services/blue_tooth/blue_tooth_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 
@@ -17,10 +16,8 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  bool isBTDeviceActive = false;
   @override
   void initState() {
-    isBTDeviceActive = BlueToothService().getStatus();
     super.initState();
   }
 
@@ -34,10 +31,6 @@ class _HomeViewState extends State<HomeView> {
         appBar: AppBar(
           title: const Text("Ana Ekran"),
           actions: [
-            Icon(
-              Icons.print_sharp,
-              color: isBTDeviceActive ? Colors.green : Colors.red,
-            ),
             PopupMenuButton<MenuAction>(
               onSelected: (value) async {
                 switch (value) {

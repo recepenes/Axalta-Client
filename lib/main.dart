@@ -25,7 +25,7 @@ void main() {
   HttpOverrides.global = MyHttpOverrides();
   runApp(const App());
   Future.delayed(Duration.zero, () async {
-    await BlueToothService().autoBtConnect();
+    await BlueToothService.autoBtConnect();
     var indicator = await IndicatorService().loadIndicatorIdFromDevice();
     indicatorName = indicator['indicatorName'];
     indicatorId = indicator['indicatorId'];
@@ -42,25 +42,20 @@ class App extends StatelessWidget {
       child: MaterialApp(
         title: 'Home',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            // colorScheme: const ColorScheme.dark(),
-            // primarySwatch: Colors.blue,
-            ),
+        theme: ThemeData(),
         home: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            // return const HomeView();
-
             if (state is LoginSuccessState) {
               return const HomeView();
             } else {
-              return LoginScreen();
+              return const LoginScreen();
             }
           },
         ),
         routes: {
           homeRoute: (context) => const HomeView(),
           splashRoute: (context) => const SplashScreen(),
-          loginRoute: (context) => LoginScreen(),
+          loginRoute: (context) => const LoginScreen(),
           pigmentRoute: (context) => const PigmentView(),
           bluetoothRoute: (context) => const BlueToothView(),
           indicatorRoute: (context) => const IndicatorView(),
@@ -75,13 +70,6 @@ class App extends StatelessWidget {
         ],
         supportedLocales: const [
           Locale('en', ''),
-          // Locale('pt', ''),
-          // Locale('es', ''),
-          // Locale('fa', ''),
-          // Locale('fr', ''),
-          // Locale('ja', ''),
-          // Locale('sk', ''),
-          // Locale('pl', ''),
         ],
       ),
     );
