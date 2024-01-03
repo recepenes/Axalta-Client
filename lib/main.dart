@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:axalta/views/splash_screen.dart';
 
 import 'blocs/auth/auth_bloc.dart';
 import 'constants/routes.dart';
@@ -54,7 +53,6 @@ class App extends StatelessWidget {
         ),
         routes: {
           homeRoute: (context) => const HomeView(),
-          splashRoute: (context) => const SplashScreen(),
           loginRoute: (context) => const LoginScreen(),
           pigmentRoute: (context) => const PigmentView(),
           bluetoothRoute: (context) => const BlueToothView(),
