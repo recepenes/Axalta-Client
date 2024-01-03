@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:axalta/model/weighing_detail_dto.dart';
-import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/blue_tooth/blue_tooth_service.dart';
 import 'package:axalta/views/weigihing/detail_view.dart';
 import 'package:flutter/material.dart';
@@ -147,15 +144,6 @@ class _CumulativeViewState extends State<CumulativeView> {
         },
       ),
     );
-  }
-
-  WeighingProductDto lastRecord = WeighingProductDto.empty();
-
-  List<DataRow> getTableRowData() {
-    List<DataRow> rows = List<DataRow>.empty(growable: true);
-
-    rows.add(lastRecord.getRows());
-    return rows;
   }
 
   createNewWeighing() {}
