@@ -31,6 +31,7 @@ class _MiddeleViewState extends State<MiddeleView> {
   bool _isExtra = false;
   final FocusNode _focusNode = FocusNode();
   bool isButtonActive = false;
+  bool isStarButtonActive = true;
   Color _backgroundColor = Colors.transparent;
   String _qrCodeLabelText = "Ürün Barkodu Okut";
   int _currentMixNo = 0;
@@ -215,25 +216,29 @@ class _MiddeleViewState extends State<MiddeleView> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.saveAndValidate()) {
-                            var result =
-                                await IndicatorService().sendTareToIndicator();
-                            if (result['success']) {
-                              SnackbarHelper.showSnackbar(
-                                  context, "Dara Başarılı");
-                            } else {
-                              String errorMessage = result['errorMessage'];
-                              SnackbarHelper.showSnackbar(
-                                  context, errorMessage);
-                            }
-                            _currentMixNo = int.parse(_mixNoStart.text);
+                        onPressed: isStarButtonActive
+                            ? () async {
+                                if (_formKey.currentState!.saveAndValidate()) {
+                                  var result = await IndicatorService()
+                                      .sendTareToIndicator();
+                                  if (result['success']) {
+                                    SnackbarHelper.showSnackbar(
+                                        context, "Dara Başarılı");
+                                  } else {
+                                    String errorMessage =
+                                        result['errorMessage'];
+                                    SnackbarHelper.showSnackbar(
+                                        context, errorMessage);
+                                  }
+                                  _currentMixNo = int.parse(_mixNoStart.text);
 
-                            setState(() {
-                              isButtonActive = true;
-                            });
-                          }
-                        },
+                                  setState(() {
+                                    isButtonActive = true;
+                                    isStarButtonActive = false;
+                                  });
+                                }
+                              }
+                            : null,
                         child: const Text('Başla'),
                       ),
                       ElevatedButton(
@@ -336,7 +341,16 @@ class _MiddeleViewState extends State<MiddeleView> {
                                       .finishRecord(getDetailDto(i));
                                   BlueToothService.setDto(getDetailDto(i));
                                 }
-
+                                var result = await IndicatorService()
+                                    .sendClearToIndicator();
+                                if (result['success']) {
+                                  SnackbarHelper.showSnackbar(
+                                      context, "Clear Başarılı");
+                                } else {
+                                  String errorMessage = result['errorMessage'];
+                                  SnackbarHelper.showSnackbar(
+                                      context, errorMessage);
+                                }
                                 await BlueToothService.startTimer();
                                 _finishWeighing();
                               }
@@ -431,6 +445,7 @@ class _MiddeleViewState extends State<MiddeleView> {
       _currentMixNo = 0;
       _qrCode.clear();
       isButtonActive = false;
+      isStarButtonActive = true;
       _backgroundColor = Colors.transparent;
       _qrCodeLabelText = "Ürün Barkodu Okut";
     });

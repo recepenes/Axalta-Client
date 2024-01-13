@@ -99,6 +99,45 @@ class IndicatorService {
     return result;
   }
 
+    Future<Map<String, dynamic>> sendClearToIndicator() async {
+    Map<String, dynamic> result = {
+      'success': false,
+      'errorMessage': '',
+    };
+
+    try {
+      const path = "indicator/setclear";
+      Uri uri = Uri(
+        scheme: scheme,
+        host: host,
+        port: port,
+        path: apiRoute + path,
+      );
+      devtools.log("Send Clear to Indicator");
+
+      Uri modifiedUri = uri.replace(queryParameters: {
+        'indicatorId': indicatorId.toString(),
+      });
+      final http.Response response = await http.get(
+        modifiedUri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $userToken'
+        },
+      );
+      if (response.statusCode == 200) {
+        result['success'] = true;
+      } else {
+        result['errorMessage'] =
+            'Clear alınırken bir hata oluştu: ${response.statusCode}';
+      }
+    } catch (e) {
+      result['errorMessage'] = 'Clear alınırken exception: ' + e.toString();
+    }
+
+    return result;
+  }
+
   Future<IndicatorDto> getSavedIndicator() async {
     var locals = await loadIndicatorIdFromDevice();
     int localIndicatorId = locals['indicatorId'];

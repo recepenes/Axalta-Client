@@ -30,6 +30,7 @@ class _PigmentViewState extends State<PigmentView> {
   bool _isExtra = false;
   final FocusNode _focusNode = FocusNode();
   bool isButtonActive = false;
+  bool isStartButtonActive = true;
   Color _backgroundColor = Colors.transparent;
   String _qrCodeLabelText = "Ürün Barkodu Okut";
 
@@ -175,20 +176,24 @@ class _PigmentViewState extends State<PigmentView> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () async {
-                          var result =
-                              await IndicatorService().sendTareToIndicator();
-                          if (result['success']) {
-                            SnackbarHelper.showSnackbar(
-                                context, "Dara Başarılı");
-                          } else {
-                            String errorMessage = result['errorMessage'];
-                            SnackbarHelper.showSnackbar(context, errorMessage);
-                          }
-                          setState(() {
-                            isButtonActive = true;
-                          });
-                        },
+                        onPressed: isStartButtonActive
+                            ? () async {
+                                var result = await IndicatorService()
+                                    .sendTareToIndicator();
+                                if (result['success']) {
+                                  SnackbarHelper.showSnackbar(
+                                      context, "Dara Başarılı");
+                                } else {
+                                  String errorMessage = result['errorMessage'];
+                                  SnackbarHelper.showSnackbar(
+                                      context, errorMessage);
+                                }
+                                setState(() {
+                                  isButtonActive = true;
+                                  isStartButtonActive = false;
+                                });
+                              }
+                            : null,
                         child: const Text('Başla'),
                       ),
                       ElevatedButton(
@@ -282,6 +287,8 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
+                                await IndicatorService().sendClearToIndicator();
+
                                 var result = await ApiService()
                                     .finishRecord(getDetailDto());
                                 if (result['success']) {
@@ -292,6 +299,7 @@ class _PigmentViewState extends State<PigmentView> {
                                   SnackbarHelper.showSnackbar(
                                       context, errorMessage);
                                 }
+
                                 BlueToothService.setDto(getDetailDto());
                                 await BlueToothService.startTimer();
                                 _finishWeighing();
@@ -372,6 +380,7 @@ class _PigmentViewState extends State<PigmentView> {
       _mixNo.clear();
       _qrCode.clear();
       isButtonActive = false;
+      isStartButtonActive = true;
       _backgroundColor = Colors.transparent;
       _qrCodeLabelText = "Ürün Barkodu Okut";
     });
