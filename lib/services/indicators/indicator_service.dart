@@ -4,6 +4,7 @@ import 'dart:developer' as devtools show log;
 import 'package:axalta/constants/api_url.dart';
 import 'package:axalta/constants/indicator.dart';
 import 'package:axalta/constants/user_token.dart';
+import 'package:axalta/enums/menu_view.dart';
 import 'package:axalta/model/indicator_dto.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -60,7 +61,7 @@ class IndicatorService {
     }
   }
 
-  Future<Map<String, dynamic>> sendTareToIndicator() async {
+  Future<Map<String, dynamic>> sendTareToIndicator(MenuViews viewId) async {
     Map<String, dynamic> result = {
       'success': false,
       'errorMessage': '',
@@ -77,7 +78,7 @@ class IndicatorService {
       devtools.log("Send Tare to Indicator");
 
       Uri modifiedUri = uri.replace(queryParameters: {
-        'indicatorId': indicatorId.toString(),
+        'indicatorId': await getIndicatorId(viewId),
       });
       final http.Response response = await http.get(
         modifiedUri,
@@ -99,7 +100,7 @@ class IndicatorService {
     return result;
   }
 
-    Future<Map<String, dynamic>> sendClearToIndicator() async {
+  Future<Map<String, dynamic>> sendClearToIndicator(MenuViews viewId) async {
     Map<String, dynamic> result = {
       'success': false,
       'errorMessage': '',
@@ -116,7 +117,7 @@ class IndicatorService {
       devtools.log("Send Clear to Indicator");
 
       Uri modifiedUri = uri.replace(queryParameters: {
-        'indicatorId': indicatorId.toString(),
+        'indicatorId': await getIndicatorId(viewId),
       });
       final http.Response response = await http.get(
         modifiedUri,
@@ -138,29 +139,36 @@ class IndicatorService {
     return result;
   }
 
-  Future<IndicatorDto> getSavedIndicator() async {
-    var locals = await loadIndicatorIdFromDevice();
-    int localIndicatorId = locals['indicatorId'];
-    return indicators.firstWhere((x) => x.id == localIndicatorId);
+  Future<void> saveSelections(String key, List<String> selections) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList(key, selections);
   }
 
-  Future<void> saveIndicatorIdToDevice(
-      int indicatorId, String indicatorName) async {
+  Future<void> loadSavedSelections(
+      String key, Function(List<String>) callback) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('indicatorId', indicatorId);
-    await prefs.setString('indicatorName', indicatorName);
+    callback(prefs.getStringList(key) ?? []);
   }
 
-  Future<Map<String, dynamic>> loadIndicatorIdFromDevice() async {
-    Map<String, dynamic> localIndicator = {};
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int indicatorId = prefs.getInt('indicatorId') ?? 1;
-    String? indicatorName = prefs.getString('indicatorName');
-    localIndicator.addAll({
-      'indicatorId': indicatorId,
-      'indicatorName': indicatorName,
-    });
-
-    return localIndicator;
+  Future<String> getIndicatorId(MenuViews viewId) async {
+    String indicatorId = "";
+    switch (viewId) {
+      case MenuViews.pigment:
+        await loadSavedSelections(pigmentIndicatorLocal, (values) {
+          indicatorId = values[0];
+        });
+        break;
+      case MenuViews.middleView1:
+        await loadSavedSelections(middle1IndicatorLocal, (values) {
+          indicatorId = values[0];
+        });
+        break;
+      case MenuViews.middleView2:
+        await loadSavedSelections(middle2IndicatorLocal, (values) {
+          indicatorId = values[0];
+        });
+        break;
+    }
+    return indicatorId;
   }
 }

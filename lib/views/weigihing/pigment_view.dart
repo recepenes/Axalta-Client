@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:axalta/enums/menu_view.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/indicators/indicator_service.dart';
@@ -179,7 +180,7 @@ class _PigmentViewState extends State<PigmentView> {
                         onPressed: isStartButtonActive
                             ? () async {
                                 var result = await IndicatorService()
-                                    .sendTareToIndicator();
+                                    .sendTareToIndicator(MenuViews.pigment);
                                 if (result['success']) {
                                   SnackbarHelper.showSnackbar(
                                       context, "Dara Başarılı");
@@ -220,7 +221,7 @@ class _PigmentViewState extends State<PigmentView> {
                                 if (_formKey.currentState!.saveAndValidate()) {
                                   await recordWeight(getWeighingDto());
                                   var result = await IndicatorService()
-                                      .sendTareToIndicator();
+                                      .sendTareToIndicator(MenuViews.pigment);
                                   if (result['success']) {
                                     SnackbarHelper.showSnackbar(
                                         context, "Dara Başarılı");
@@ -287,7 +288,8 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
-                                await IndicatorService().sendClearToIndicator();
+                                await IndicatorService()
+                                    .sendClearToIndicator(MenuViews.pigment);
 
                                 var result = await ApiService()
                                     .finishRecord(getDetailDto());

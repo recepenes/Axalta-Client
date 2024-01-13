@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:axalta/enums/menu_view.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/indicators/indicator_service.dart';
@@ -220,7 +221,8 @@ class _MiddeleViewState extends State<MiddeleView> {
                             ? () async {
                                 if (_formKey.currentState!.saveAndValidate()) {
                                   var result = await IndicatorService()
-                                      .sendTareToIndicator();
+                                      .sendTareToIndicator(
+                                          MenuViews.middleView1);
                                   if (result['success']) {
                                     SnackbarHelper.showSnackbar(
                                         context, "Dara Başarılı");
@@ -268,7 +270,8 @@ class _MiddeleViewState extends State<MiddeleView> {
                                 if (_formKey.currentState!.saveAndValidate()) {
                                   await recordWeight(getWeighingDto());
                                   var result = await IndicatorService()
-                                      .sendTareToIndicator();
+                                      .sendTareToIndicator(
+                                          MenuViews.middleView1);
                                   if (result['success']) {
                                     SnackbarHelper.showSnackbar(
                                         context, "Dara Başarılı");
@@ -342,7 +345,8 @@ class _MiddeleViewState extends State<MiddeleView> {
                                   BlueToothService.setDto(getDetailDto(i));
                                 }
                                 var result = await IndicatorService()
-                                    .sendClearToIndicator();
+                                    .sendClearToIndicator(
+                                        MenuViews.middleView1);
                                 if (result['success']) {
                                   SnackbarHelper.showSnackbar(
                                       context, "Clear Başarılı");
