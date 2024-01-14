@@ -171,4 +171,13 @@ class IndicatorService {
     }
     return indicatorId;
   }
+
+  Future<String> getIndicatorNameById(int indicatorId) async {
+    var result = await IndicatorService().getAllIndicators();
+
+    if (result['success']) {
+      indicators = result['indicators'];
+    }
+    return indicators.firstWhere((x) => x.id == indicatorId).name;
+  }
 }

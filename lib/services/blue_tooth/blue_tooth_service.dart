@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:axalta/constants/api_url.dart';
-import 'package:axalta/constants/indicator.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
+import 'package:axalta/services/indicators/indicator_service.dart';
 import 'package:axalta/services/weight/detail_service.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'dart:developer' as devtools show log;
@@ -106,7 +106,7 @@ class BlueToothService {
       bytes += generator.text("Operator: ${convertTurkishToEnglish("Enes")}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text(
-          "Tarti: ${convertTurkishToEnglish("TODO:dtodan name gelecek")}",
+          "Tarti: ${convertTurkishToEnglish(await IndicatorService().getIndicatorNameById(reports[0].indicatorId))}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text('Hat No: $lineNumber',
           styles: const PosStyles(align: PosAlign.left));
