@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:axalta/constants/indicator.dart';
 import 'package:axalta/services/blue_tooth/blue_tooth_service.dart';
-import 'package:axalta/services/indicators/indicator_service.dart';
 import 'package:axalta/views/bluetooth/blue_tooth_view.dart';
 import 'package:axalta/views/home_view.dart';
 import 'package:axalta/views/indicator/indicator_view.dart';
