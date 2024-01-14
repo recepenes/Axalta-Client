@@ -25,9 +25,6 @@ void main() {
   runApp(const App());
   Future.delayed(Duration.zero, () async {
     await BlueToothService.autoBtConnect();
-    var indicator = await IndicatorService().loadIndicatorIdFromDevice();
-    indicatorName = indicator['indicatorName'];
-    indicatorId = indicator['indicatorId'];
   });
 }
 

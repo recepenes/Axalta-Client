@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:axalta/enums/menu_view.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/indicators/indicator_service.dart';
@@ -31,6 +32,7 @@ class _MiddeleViewState extends State<MiddeleView> {
   bool _isExtra = false;
   final FocusNode _focusNode = FocusNode();
   bool isButtonActive = false;
+  bool isStarButtonActive = true;
   Color _backgroundColor = Colors.transparent;
   String _qrCodeLabelText = "Ürün Barkodu Okut";
   int _currentMixNo = 0;
@@ -215,25 +217,30 @@ class _MiddeleViewState extends State<MiddeleView> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.saveAndValidate()) {
-                            var result =
-                                await IndicatorService().sendTareToIndicator();
-                            if (result['success']) {
-                              SnackbarHelper.showSnackbar(
-                                  context, "Dara Başarılı");
-                            } else {
-                              String errorMessage = result['errorMessage'];
-                              SnackbarHelper.showSnackbar(
-                                  context, errorMessage);
-                            }
-                            _currentMixNo = int.parse(_mixNoStart.text);
+                        onPressed: isStarButtonActive
+                            ? () async {
+                                if (_formKey.currentState!.saveAndValidate()) {
+                                  var result = await IndicatorService()
+                                      .sendTareToIndicator(
+                                          MenuViews.middleView1);
+                                  if (result['success']) {
+                                    SnackbarHelper.showSnackbar(
+                                        context, "Dara Başarılı");
+                                  } else {
+                                    String errorMessage =
+                                        result['errorMessage'];
+                                    SnackbarHelper.showSnackbar(
+                                        context, errorMessage);
+                                  }
+                                  _currentMixNo = int.parse(_mixNoStart.text);
 
-                            setState(() {
-                              isButtonActive = true;
-                            });
-                          }
-                        },
+                                  setState(() {
+                                    isButtonActive = true;
+                                    isStarButtonActive = false;
+                                  });
+                                }
+                              }
+                            : null,
                         child: const Text('Başla'),
                       ),
                       ElevatedButton(
@@ -263,7 +270,8 @@ class _MiddeleViewState extends State<MiddeleView> {
                                 if (_formKey.currentState!.saveAndValidate()) {
                                   await recordWeight(getWeighingDto());
                                   var result = await IndicatorService()
-                                      .sendTareToIndicator();
+                                      .sendTareToIndicator(
+                                          MenuViews.middleView1);
                                   if (result['success']) {
                                     SnackbarHelper.showSnackbar(
                                         context, "Dara Başarılı");
@@ -336,7 +344,17 @@ class _MiddeleViewState extends State<MiddeleView> {
                                       .finishRecord(getDetailDto(i));
                                   BlueToothService.setDto(getDetailDto(i));
                                 }
-
+                                var result = await IndicatorService()
+                                    .sendClearToIndicator(
+                                        MenuViews.middleView1);
+                                if (result['success']) {
+                                  SnackbarHelper.showSnackbar(
+                                      context, "Clear Başarılı");
+                                } else {
+                                  String errorMessage = result['errorMessage'];
+                                  SnackbarHelper.showSnackbar(
+                                      context, errorMessage);
+                                }
                                 await BlueToothService.startTimer();
                                 _finishWeighing();
                               }
@@ -364,7 +382,7 @@ class _MiddeleViewState extends State<MiddeleView> {
   }
 
   Future recordWeight(WeighingProductDto dto) async {
-    var result = await ApiService().postData(dto);
+    var result = await ApiService().postData(dto, MenuViews.middleView1);
 
     setState(() {
       if (result['success']) {
@@ -395,7 +413,8 @@ class _MiddeleViewState extends State<MiddeleView> {
         sequenceNumber: 2,
         productNumber: _qrCode.text,
         weight: "22",
-        isDone: false);
+        isDone: false,
+        indicatorId: 1);
   }
 
   void _checkCurrentMixNo() {
@@ -431,6 +450,7 @@ class _MiddeleViewState extends State<MiddeleView> {
       _currentMixNo = 0;
       _qrCode.clear();
       isButtonActive = false;
+      isStarButtonActive = true;
       _backgroundColor = Colors.transparent;
       _qrCodeLabelText = "Ürün Barkodu Okut";
     });

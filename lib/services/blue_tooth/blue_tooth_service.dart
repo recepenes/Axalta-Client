@@ -106,7 +106,7 @@ class BlueToothService {
       bytes += generator.text("Operator: ${convertTurkishToEnglish("Enes")}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text(
-          "Tarti: ${convertTurkishToEnglish(indicatorName)}",
+          "Tarti: ${convertTurkishToEnglish("TODO:dtodan name gelecek")}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text('Hat No: $lineNumber',
           styles: const PosStyles(align: PosAlign.left));

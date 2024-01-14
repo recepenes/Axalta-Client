@@ -25,6 +25,7 @@ dependencies:
   esc_pos_utils: ^1.1.0
   flutter_bluetooth_serial: ^0.4.0
   shared_preferences: ^2.0.10
+  multi_select_flutter: ^4.1.3
 
 dev_dependencies:
   flutter_test:

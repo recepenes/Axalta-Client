@@ -1,2 +1,3 @@
-int indicatorId = 1;
-String indicatorName = "";
+String pigmentIndicatorLocal = "pigment";
+String middle1IndicatorLocal = "middle1";
+String middle2IndicatorLocal = "middle2";
