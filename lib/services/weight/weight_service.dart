@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'package:axalta/constants/api_url.dart';
-import 'package:axalta/constants/indicator.dart';
 import 'package:axalta/constants/user_token.dart';
+import 'package:axalta/enums/menu_view.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
+import 'package:axalta/services/indicators/indicator_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as devtools show log;
 
 class ApiService {
-  Future<Map<String, dynamic>> postData(WeighingProductDto dto) async {
+  Future<Map<String, dynamic>> postData(
+      WeighingProductDto dto, MenuViews viewId) async {
     Map<String, dynamic> result = {
       'success': false,
       'weighingProduct': WeighingProductDto.empty(),
@@ -36,7 +38,8 @@ class ApiService {
     try {
       devtools.log("post");
       Uri modifiedUri = uri.replace(queryParameters: {
-        'indicatorId': indicatorId.toString(),
+        'indicatorId':
+            (await IndicatorService().getIndicatorId(viewId)).toString(),
       });
       final http.Response response = await http.post(
         modifiedUri,

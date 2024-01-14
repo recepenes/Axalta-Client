@@ -382,7 +382,7 @@ class _MiddeleViewState extends State<MiddeleView> {
   }
 
   Future recordWeight(WeighingProductDto dto) async {
-    var result = await ApiService().postData(dto);
+    var result = await ApiService().postData(dto, MenuViews.middleView1);
 
     setState(() {
       if (result['success']) {
@@ -413,7 +413,8 @@ class _MiddeleViewState extends State<MiddeleView> {
         sequenceNumber: 2,
         productNumber: _qrCode.text,
         weight: "22",
-        isDone: false);
+        isDone: false,
+        indicatorId: 1);
   }
 
   void _checkCurrentMixNo() {

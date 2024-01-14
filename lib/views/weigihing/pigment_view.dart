@@ -332,7 +332,7 @@ class _PigmentViewState extends State<PigmentView> {
   Future recordWeight(WeighingProductDto dto) async {
     _qrCode.clear();
 
-    var result = await ApiService().postData(dto);
+    var result = await ApiService().postData(dto, MenuViews.pigment);
 
     setState(() {
       if (result['success']) {
@@ -363,7 +363,8 @@ class _PigmentViewState extends State<PigmentView> {
         sequenceNumber: 2,
         productNumber: _qrCode.text,
         weight: "22",
-        isDone: false);
+        isDone: false,
+        indicatorId: 1);
   }
 
   void _changeQrCodeBackgroundColor() {

@@ -13,6 +13,7 @@ class WeighingProductDto {
   String productNumber;
   String weight;
   bool isDone;
+  int indicatorId;
 
   WeighingProductDto({
     required this.id,
@@ -24,6 +25,7 @@ class WeighingProductDto {
     required this.productNumber,
     required this.weight,
     required this.isDone,
+    required this.indicatorId,
   });
 
   WeighingProductDto.empty()
@@ -35,7 +37,8 @@ class WeighingProductDto {
         sequenceNumber = 0,
         productNumber = "Bekleniyor",
         weight = "Bekleniyor",
-        isDone = false;
+        isDone = false,
+        indicatorId = 1;
 
   DataRow getRows() {
     return DataRow(cells: [
@@ -48,16 +51,16 @@ class WeighingProductDto {
 
   factory WeighingProductDto.fromJson(Map<String, dynamic> json) {
     final weighingProduct = WeighingProductDto(
-      id: json['id'] ?? 0,
-      lineNumber: json['lineNumber'],
-      batchNo: json['batchNo'],
-      mixNo: json['mixNo'],
-      isExtra: json['isExtra'],
-      sequenceNumber: json['sequenceNumber'],
-      productNumber: json['productNumber'],
-      weight: json['weight'],
-      isDone: json['isDone'],
-    );
+        id: json['id'] ?? 0,
+        lineNumber: json['lineNumber'],
+        batchNo: json['batchNo'],
+        mixNo: json['mixNo'],
+        isExtra: json['isExtra'],
+        sequenceNumber: json['sequenceNumber'],
+        productNumber: json['productNumber'],
+        weight: json['weight'],
+        isDone: json['isDone'],
+        indicatorId: json["indicatorId"]);
     if (weighingProduct.weight.isNotEmpty) {
       return weighingProduct;
     } else {
