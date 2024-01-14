@@ -187,4 +187,47 @@ class AuthService {
     }
     return false;
   }
+
+   Future<Map<String, dynamic>> getUserName() async {
+    Map<String, dynamic> result = {
+      'success': false,
+      'user': '',
+      'errorMessage': '',
+    };
+
+    const path = "userauthentication/user";
+    Uri uri = Uri(
+      scheme: scheme,
+      host: host,
+      port: port,
+      path: apiRoute + path,
+    );
+
+    try {
+      devtools.log("Get User");
+      final http.Response response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $userToken'
+        },
+      );
+
+      String jsonStr = response.body;
+
+      if (response.statusCode == 200) {
+        result['success'] = true;
+        result['user'] = jsonStr;
+        return result;
+      } else {
+        result['errorMessage'] =
+            'User alınırken bir hata oluştu: ${response.statusCode}';
+        return result;
+      }
+    } catch (e) {
+      result['errorMessage'] = 'User alınırken exception : ' + e.toString();
+      return result;
+    }
+  }
+
 }
