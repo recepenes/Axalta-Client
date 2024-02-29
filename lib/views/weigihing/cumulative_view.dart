@@ -130,7 +130,6 @@ class _CumulativeViewState extends State<CumulativeView> {
                         onPressed: () async {
                           if (_formKey.currentState!.saveAndValidate()) {
                             BlueToothService.setDto(getDetailDto());
-                            await BlueToothService.startTimer();
                           }
                         },
                         child: const Text('Çıktı Al'),

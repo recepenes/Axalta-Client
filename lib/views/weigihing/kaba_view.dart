@@ -3,24 +3,24 @@ import 'dart:async';
 import 'package:axalta/enums/menu_view.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
-import 'package:axalta/services/indicators/indicator_service.dart';
+import 'package:axalta/services/weight/packaged_product_service.dart';
 import 'package:axalta/services/weight/weight_service.dart';
 import 'package:axalta/views/snack_bar_helper.dart';
-import 'package:axalta/views/weigihing/detail_view.dart';
+import 'package:axalta/views/weigihing/detail_view_kaba.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 import '../../services/blue_tooth/blue_tooth_service.dart';
 
-class PigmentView extends StatefulWidget {
-  const PigmentView({super.key});
+class KabaView extends StatefulWidget {
+  const KabaView({super.key});
 
   @override
-  State<PigmentView> createState() => _PigmentViewState();
+  State<KabaView> createState() => _KabaViewState();
 }
 
-class _PigmentViewState extends State<PigmentView> {
+class _KabaViewState extends State<KabaView> {
   late final TextEditingController _lineNo;
   late final TextEditingController _bacthNo;
   late final TextEditingController _mixNo;
@@ -28,7 +28,7 @@ class _PigmentViewState extends State<PigmentView> {
   late final TextEditingController _sequenceNo;
   late final TextEditingController _weight;
   late final TextEditingController _qrCode;
-  bool _isExtra = false;
+  late final TextEditingController _quantity;
   final FocusNode _focusNode = FocusNode();
   bool isButtonActive = false;
   bool isStartButtonActive = true;
@@ -44,6 +44,7 @@ class _PigmentViewState extends State<PigmentView> {
     _sequenceNo = TextEditingController();
     _weight = TextEditingController();
     _qrCode = TextEditingController();
+    _quantity = TextEditingController();
     super.initState();
   }
 
@@ -56,6 +57,7 @@ class _PigmentViewState extends State<PigmentView> {
     _sequenceNo.dispose();
     _weight.dispose();
     _qrCode.dispose();
+    _quantity.dispose();
     super.dispose();
   }
 
@@ -65,7 +67,7 @@ class _PigmentViewState extends State<PigmentView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pigment Tartım"),
+        title: const Text("Kaba Tartım"),
       ),
       body: FutureBuilder(
         future: createNewWeighing(),
@@ -139,6 +141,25 @@ class _PigmentViewState extends State<PigmentView> {
                           },
                         ),
                         FormBuilderTextField(
+                          name: "quantity",
+                          controller: _quantity,
+                          keyboardType: TextInputType.number,
+                          maxLines: null,
+                          decoration: InputDecoration(
+                            labelText: "Adet",
+                            contentPadding: const EdgeInsets.all(8),
+                            filled: true,
+                            fillColor: _backgroundColor,
+                          ),
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(
+                                errorText: "Bu alan boş bırakılımaz."),
+                          ]),
+                          onEditingComplete: () {
+                            FocusScope.of(context).nextFocus();
+                          },
+                        ),
+                        FormBuilderTextField(
                           name: "qrCode",
                           controller: _qrCode,
                           focusNode: _focusNode,
@@ -155,15 +176,6 @@ class _PigmentViewState extends State<PigmentView> {
                                 errorText: "Bu alan boş bırakılımaz."),
                           ]),
                         ),
-                        CheckboxListTile(
-                          title: const Text('İlave Tartım'),
-                          value: _isExtra,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              _isExtra = value ?? false;
-                            });
-                          },
-                        )
                       ],
                     ),
                   ),
@@ -179,16 +191,6 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: isStartButtonActive
                             ? () async {
-                                var result = await IndicatorService()
-                                    .sendTareToIndicator(MenuViews.pigment);
-                                if (result['success']) {
-                                  SnackbarHelper.showSnackbar(
-                                      context, "Dara Başarılı");
-                                } else {
-                                  String errorMessage = result['errorMessage'];
-                                  SnackbarHelper.showSnackbar(
-                                      context, errorMessage);
-                                }
                                 setState(() {
                                   isButtonActive = true;
                                   isStartButtonActive = false;
@@ -206,7 +208,7 @@ class _PigmentViewState extends State<PigmentView> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => DetailView(
+                                        builder: (context) => DetailViewKaba(
                                           dto: getDetailDto(),
                                         ),
                                       ));
@@ -220,17 +222,6 @@ class _PigmentViewState extends State<PigmentView> {
                             ? () async {
                                 if (_formKey.currentState!.saveAndValidate()) {
                                   await recordWeight(getWeighingDto());
-                                  var result = await IndicatorService()
-                                      .sendTareToIndicator(MenuViews.pigment);
-                                  if (result['success']) {
-                                    SnackbarHelper.showSnackbar(
-                                        context, "Dara Başarılı");
-                                  } else {
-                                    String errorMessage =
-                                        result['errorMessage'];
-                                    SnackbarHelper.showSnackbar(
-                                        context, errorMessage);
-                                  }
                                   _changeQrCodeBackgroundColor();
                                 }
                               }
@@ -288,20 +279,6 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
-                                await IndicatorService()
-                                    .sendClearToIndicator(MenuViews.pigment);
-
-                                var result = await ApiService()
-                                    .finishRecord(getDetailDto());
-                                if (result['success']) {
-                                  SnackbarHelper.showSnackbar(
-                                      context, "Kayıt İşlemi Başarılı");
-                                } else {
-                                  String errorMessage = result['errorMessage'];
-                                  SnackbarHelper.showSnackbar(
-                                      context, errorMessage);
-                                }
-
                                 BlueToothService.setDto(getDetailDto());
                                 _finishWeighing();
                               }
@@ -329,9 +306,7 @@ class _PigmentViewState extends State<PigmentView> {
   }
 
   Future recordWeight(WeighingProductDto dto) async {
-    _qrCode.clear();
-
-    var result = await ApiService().postData(dto, MenuViews.pigment);
+    var result = await PackagedProductService().postData(getWeighingDto());
 
     setState(() {
       if (result['success']) {
@@ -341,9 +316,11 @@ class _PigmentViewState extends State<PigmentView> {
         SnackbarHelper.showSnackbar(context, errorMessage);
       }
     });
+    _qrCode.clear();
+    _quantity.clear();
   }
 
-  createNewWeighing() {}
+  createNewWeighing() async {}
 
   WeighingDetailDto getDetailDto() {
     return WeighingDetailDto(
@@ -358,8 +335,8 @@ class _PigmentViewState extends State<PigmentView> {
         lineNumber: int.parse(_lineNo.text),
         batchNo: _bacthNo.text,
         mixNo: int.parse(_mixNo.text),
-        isExtra: _isExtra,
-        sequenceNumber: 2,
+        isExtra: false,
+        sequenceNumber: int.parse(_quantity.text),
         productNumber: _qrCode.text,
         weight: "22",
         isDone: false,
@@ -381,6 +358,7 @@ class _PigmentViewState extends State<PigmentView> {
       _bacthNo.clear();
       _mixNo.clear();
       _qrCode.clear();
+      _quantity.clear();
       isButtonActive = false;
       isStartButtonActive = true;
       _backgroundColor = Colors.transparent;

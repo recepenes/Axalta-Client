@@ -29,6 +29,7 @@ class _MiddeleViewState extends State<MiddeleView> {
   late final TextEditingController _sequenceNo;
   late final TextEditingController _weight;
   late final TextEditingController _qrCode;
+  late final TextEditingController _currentMixNoController;
   bool _isExtra = false;
   final FocusNode _focusNode = FocusNode();
   bool isButtonActive = false;
@@ -47,6 +48,8 @@ class _MiddeleViewState extends State<MiddeleView> {
     _sequenceNo = TextEditingController();
     _weight = TextEditingController();
     _qrCode = TextEditingController();
+    _currentMixNoController = TextEditingController();
+    _currentMixNoController.text = _currentMixNo.toString();
     super.initState();
   }
 
@@ -59,6 +62,7 @@ class _MiddeleViewState extends State<MiddeleView> {
     _sequenceNo.dispose();
     _weight.dispose();
     _qrCode.dispose();
+    _currentMixNoController.dispose();
     super.dispose();
   }
 
@@ -168,14 +172,27 @@ class _MiddeleViewState extends State<MiddeleView> {
                               ),
                             ),
                             const SizedBox(
-                              child: Text("Güncel"),
-                            ),
-                            const SizedBox(
-                              width: 5,
+                              width: 16,
+                              child: Text("-"),
                             ),
                             SizedBox(
-                              child: Text(_currentMixNo.toString()),
-                            )
+                              width: 54,
+                              child: FormBuilderTextField(
+                                name: 'currentMixNo',
+                                controller: _currentMixNoController,
+                                keyboardType: TextInputType.number,
+                                maxLines: null,
+                                decoration: const InputDecoration(
+                                    labelText: "Güncel",
+                                    contentPadding: EdgeInsets.all(8)),
+                                onChanged: (value) {
+                                  if (_currentMixNoController.text != "") {
+                                    _currentMixNo =
+                                        int.parse(_currentMixNoController.text);
+                                  }
+                                },
+                              ),
+                            ),
                           ],
                         ),
                         FormBuilderTextField(
@@ -233,6 +250,8 @@ class _MiddeleViewState extends State<MiddeleView> {
                                         context, errorMessage);
                                   }
                                   _currentMixNo = int.parse(_mixNoStart.text);
+                                  _currentMixNoController.text =
+                                      _currentMixNo.toString();
 
                                   setState(() {
                                     isButtonActive = true;
@@ -342,8 +361,9 @@ class _MiddeleViewState extends State<MiddeleView> {
                                     i++) {
                                   await ApiService()
                                       .finishRecord(getDetailDto(i));
-                                  BlueToothService.setDto(getDetailDto(i));
+                                  BlueToothService.setListDto(getDetailDto(i));
                                 }
+                                BlueToothService.connectAndPrintList();
                                 var result = await IndicatorService()
                                     .sendClearToIndicator(
                                         MenuViews.middleView1);
@@ -355,7 +375,6 @@ class _MiddeleViewState extends State<MiddeleView> {
                                   SnackbarHelper.showSnackbar(
                                       context, errorMessage);
                                 }
-                                await BlueToothService.startTimer();
                                 _finishWeighing();
                               }
                             : null,
@@ -429,6 +448,7 @@ class _MiddeleViewState extends State<MiddeleView> {
     }
     setState(() {
       _currentMixNo++;
+      _currentMixNoController.text = (_currentMixNo.toString());
     });
   }
 

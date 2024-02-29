@@ -1,7 +1,6 @@
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/detail_service.dart';
-import 'package:axalta/services/weight/weight_service.dart';
 import 'package:axalta/views/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
 
@@ -38,28 +37,6 @@ class _DetailViewState extends State<DetailView> {
           DataCell(Text(x.mixNo.toString())),
           DataCell(Text(x.productNumber)),
           DataCell(Text(x.weight.toString())),
-          DataCell(
-            ElevatedButton(
-              onPressed: () async {
-                WeighingDetailDto deletingDto = WeighingDetailDto(
-                    batchNo: x.batchNo,
-                    lineNumber: x.lineNumber,
-                    mixNo: x.mixNo);
-                var result = await ApiService()
-                    .deleteRecord(deletingDto, x.productNumber);
-                if (result['success']) {
-                  SnackbarHelper.showSnackbar(context, "Başarıyla Silindi");
-                } else {
-                  String errorMessage = result['errorMessage'];
-                  SnackbarHelper.showSnackbar(context, errorMessage);
-                }
-              },
-              child: const Text('Sil'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(20, 30),
-              ),
-            ),
-          ),
         ],
       ));
     }
@@ -98,8 +75,6 @@ class _DetailViewState extends State<DetailView> {
                       DataColumn(
                           label:
                               Text('Ağırlık', style: TextStyle(fontSize: 13))),
-                      DataColumn(
-                          label: Text('Sil', style: TextStyle(fontSize: 13))),
                     ],
                     rows: getTableRowData(),
                   ),
