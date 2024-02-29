@@ -15,27 +15,21 @@ class BlueToothService {
   static List<PrinterDevice> devices = [];
   static PrinterDevice? device;
   static bool connected = false;
-  static Timer? _timer;
   static List<WeighingDetailDto> tempDto =
       List<WeighingDetailDto>.empty(growable: true);
 
   static FpBtPrinter printer = FpBtPrinter();
 
-  static Future startTimer() async {
-    _timer = Timer.periodic(const Duration(seconds: 15), (timer) async {
-      await connectAndPrint();
-    });
-  }
-
-  static void _stopTimer() {
-    _timer?.cancel();
-  }
-
-  static Future connectAndPrint() async {
+  static Future connectAndPrint(WeighingDetailDto dto) async {
     await setConnet(devices[0]);
     if (getStatus()) {
-      _stopTimer();
+      await printTicket(dto);
+    }
+  }
 
+  static Future connectAndPrintList() async {
+    await setConnet(devices[0]);
+    if (getStatus()) {
       for (WeighingDetailDto x in tempDto) {
         await printTicket(x);
       }
@@ -43,7 +37,9 @@ class BlueToothService {
     }
   }
 
-  static void setDto(WeighingDetailDto dto) => tempDto.add(dto);
+  static void setDto(WeighingDetailDto dto) => connectAndPrint(dto);
+
+  static void setListDto(WeighingDetailDto dto) => tempDto.add(dto);
 
   static Future<void> autoBtConnect() async {
     await getDevices();

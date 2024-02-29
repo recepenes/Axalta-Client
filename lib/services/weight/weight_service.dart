@@ -118,7 +118,7 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> deleteRecord(
-      WeighingDetailDto dto, String productNumber) async {
+      WeighingDetailDto dto, String productNumber, String weight) async {
     Map<String, dynamic> result = {
       'success': false,
       'errorMessage': '',
@@ -137,6 +137,7 @@ class ApiService {
       "mixNo": dto.mixNo,
       "lineNumber": dto.lineNumber,
       "productNumber": productNumber,
+      "weight": weight
     };
 
     try {

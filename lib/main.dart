@@ -8,6 +8,7 @@ import 'package:axalta/views/login/bloc/login_bloc.dart';
 import 'package:axalta/views/login/login_screen.dart';
 import 'package:axalta/views/register/update_password_view.dart';
 import 'package:axalta/views/weigihing/cumulative_view.dart';
+import 'package:axalta/views/weigihing/kaba_view.dart';
 import 'package:axalta/views/weigihing/middle_view.dart';
 import 'package:axalta/views/weigihing/pigment_view.dart';
 import 'package:flutter/material.dart';
@@ -55,6 +56,7 @@ class App extends StatelessWidget {
           cumulativeRoute: (context) => const CumulativeView(),
           middleRoute: (context) => const MiddeleView(),
           changePasswordRoute: (context) => const UpdatePasswordView(),
+          kabaRoute: (context) => const KabaView(),
         },
         localizationsDelegates: const [
           FormBuilderLocalizations.delegate,

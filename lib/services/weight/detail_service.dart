@@ -128,4 +128,63 @@ class DetailService {
       return result;
     }
   }
+
+  Future<Map<String, dynamic>> getDetailsKaba(WeighingDetailDto dto) async {
+    Map<String, dynamic> result = {
+      'success': false,
+      'details': List<WeighingProductDto>.empty(),
+      'errorMessage': '',
+    };
+
+    const path = "weighing/detail-kaba";
+    Uri uri = Uri(
+      scheme: scheme,
+      host: host,
+      port: port,
+      path: apiRoute + path,
+    );
+
+    final Map<String, Object> data = {
+      "batchNo": dto.batchNo,
+      "mixNo": dto.mixNo,
+      "lineNumber": dto.lineNumber,
+    };
+
+    try {
+      devtools.log("Details Get");
+      final http.Response response = await http.post(
+        uri,
+        body: jsonEncode(data), // Verileri JSON formatına çevirin
+        headers: {
+          'Content-Type': 'application/json', // İçerik tipini belirtin
+          'Authorization': 'Bearer $userToken'
+        },
+      );
+
+      String jsonStr = response.body;
+
+      List<dynamic> jsonList = jsonDecode(jsonStr);
+      var details = jsonList
+          .map((dynamic e) =>
+              WeighingProductDto.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      if (response.statusCode == 200) {
+        result['success'] = true;
+        result['details'] = details;
+        return result;
+      } else {
+        devtools
+            .log('Detaylar alınırken bir hata oluştu: ${response.statusCode}');
+        result['errorMessage'] =
+            'Detaylar alınırken bir hata oluştu: ${response.statusCode}';
+        result['details'] = details;
+        return result;
+      }
+    } catch (e) {
+      devtools.log("Detaylar alınırken exception: " + e.toString());
+      result['errorMessage'] = 'Detaylar alınırken excepiton: ' + e.toString();
+      return result;
+    }
+  }
 }

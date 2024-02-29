@@ -1,31 +1,24 @@
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/detail_service.dart';
+import 'package:axalta/services/weight/weight_service.dart';
 import 'package:axalta/views/snack_bar_helper.dart';
 import 'package:flutter/material.dart';
 
-class DetailMiddeleView extends StatefulWidget {
+class DetailViewKaba extends StatefulWidget {
   final WeighingDetailDto dto;
-  final int mixNoFinish;
 
-  const DetailMiddeleView({
-    super.key,
-    required this.dto,
-    required this.mixNoFinish,
-  });
+  const DetailViewKaba({super.key, required this.dto});
 
   @override
-  State<DetailMiddeleView> createState() => _DetailMiddeleViewState();
+  State<DetailViewKaba> createState() => _DetailViewKabaState();
 }
 
-class _DetailMiddeleViewState extends State<DetailMiddeleView> {
+class _DetailViewKabaState extends State<DetailViewKaba> {
   List<WeighingProductDto> details = List.empty();
 
   getDetails() async {
-    var result = await DetailService().getDetailsBetweenMix(
-      widget.dto,
-      widget.mixNoFinish,
-    );
+    var result = await DetailService().getDetailsKaba(widget.dto);
 
     if (result['success']) {
       details = result['details'];
@@ -45,6 +38,32 @@ class _DetailMiddeleViewState extends State<DetailMiddeleView> {
           DataCell(Text(x.mixNo.toString())),
           DataCell(Text(x.productNumber)),
           DataCell(Text(x.weight.toString())),
+          DataCell(
+            ElevatedButton(
+              onPressed: () async {
+                WeighingDetailDto deletingDto = WeighingDetailDto(
+                    batchNo: x.batchNo,
+                    lineNumber: x.lineNumber,
+                    mixNo: x.mixNo);
+                var result = await ApiService()
+                    .deleteRecord(deletingDto, x.productNumber, x.weight);
+                if (result['success']) {
+                  SnackbarHelper.showSnackbar(context, "Başarıyla Silindi");
+                } else {
+                  String errorMessage = result['errorMessage'];
+                  SnackbarHelper.showSnackbar(context, errorMessage);
+                }
+
+                setState(() {
+                  getDetails();
+                });
+              },
+              child: const Text('Sil'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(20, 30),
+              ),
+            ),
+          ),
         ],
       ));
     }
@@ -75,8 +94,7 @@ class _DetailMiddeleViewState extends State<DetailMiddeleView> {
                         tooltip: 'Sıra',
                       ),
                       DataColumn(
-                        label: Text('MixNo', style: TextStyle(fontSize: 13)),
-                        tooltip: 'MixNo',
+                        label: Text('Mix No', style: TextStyle(fontSize: 13)),
                       ),
                       DataColumn(
                           label: Text('Ürün Kodu',
@@ -84,6 +102,8 @@ class _DetailMiddeleViewState extends State<DetailMiddeleView> {
                       DataColumn(
                           label:
                               Text('Ağırlık', style: TextStyle(fontSize: 13))),
+                      DataColumn(
+                          label: Text('Sil', style: TextStyle(fontSize: 13))),
                     ],
                     rows: getTableRowData(),
                   ),
