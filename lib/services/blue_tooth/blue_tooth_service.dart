@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:axalta/constants/api_url.dart';
+import 'package:axalta/enums/menu_view.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/auth_service.dart';
@@ -20,10 +21,10 @@ class BlueToothService {
 
   static FpBtPrinter printer = FpBtPrinter();
 
-  static Future connectAndPrint(WeighingDetailDto dto) async {
+  static Future connectAndPrint(WeighingDetailDto dto, MenuViews viewId) async {
     await setConnet(devices[0]);
     if (getStatus()) {
-      await printTicket(dto);
+      await printTicket(dto, viewId);
     }
   }
 
@@ -34,18 +35,18 @@ class BlueToothService {
     }
   }
 
-  static Future connectAndPrintList() async {
+  static Future connectAndPrintList(MenuViews viewId) async {
     await setConnet(devices[0]);
     if (getStatus()) {
       for (WeighingDetailDto x in tempDto) {
-        await printTicket(x);
+        await printTicket(x, viewId);
       }
       tempDto.clear();
     }
   }
 
-  static Future setDto(WeighingDetailDto dto) async =>
-      await connectAndPrint(dto);
+  static Future setDto(WeighingDetailDto dto, MenuViews viewId) async =>
+      await connectAndPrint(dto, viewId);
 
   static void setListDto(WeighingDetailDto dto) => tempDto.add(dto);
 
@@ -86,7 +87,8 @@ class BlueToothService {
     }
   }
 
-  static Future<void> printTicket(WeighingDetailDto dto) async {
+  static Future<void> printTicket(
+      WeighingDetailDto dto, MenuViews viewId) async {
     try {
       String address = device!.address;
 
@@ -118,7 +120,7 @@ class BlueToothService {
           "Operator: ${convertTurkishToEnglish(operatorName)}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text(
-          "Tarti: ${convertTurkishToEnglish(await IndicatorService().getIndicatorNameById(reports[0].indicatorId))}",
+          "Tarti: ${convertTurkishToEnglish(await IndicatorService().getIndicatorNameById(reports[0].indicatorId, viewId))}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text('Hat No: $lineNumber',
           styles: const PosStyles(align: PosAlign.left));
@@ -190,7 +192,7 @@ class BlueToothService {
           "Operator: ${convertTurkishToEnglish(operatorName)}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text(
-          "Tarti: ${convertTurkishToEnglish(await IndicatorService().getIndicatorNameById(reports[0].indicatorId))}",
+          "Tarti: ${convertTurkishToEnglish(await IndicatorService().getIndicatorNameById(reports[0].indicatorId, MenuViews.cumulative))}",
           styles: const PosStyles(align: PosAlign.left));
       bytes += generator.text('Hat No: $lineNumber',
           styles: const PosStyles(align: PosAlign.left));

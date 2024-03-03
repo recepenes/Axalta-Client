@@ -359,7 +359,8 @@ class _MiddeleViewState extends State<MiddeleView> {
                                     i++) {
                                   BlueToothService.setListDto(getDetailDto(i));
                                 }
-                                await BlueToothService.connectAndPrintList();
+                                await BlueToothService.connectAndPrintList(
+                                    MenuViews.middleView1);
 
                                 for (int i = int.parse(_mixNoStart.text);
                                     i <= int.parse(_mixNoFinish.text);
