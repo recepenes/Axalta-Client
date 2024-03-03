@@ -150,10 +150,6 @@ class _PigmentViewState extends State<PigmentView> {
                             filled: true,
                             fillColor: _backgroundColor,
                           ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                                errorText: "Bu alan boş bırakılımaz."),
-                          ]),
                         ),
                         CheckboxListTile(
                           title: const Text('İlave Tartım'),
@@ -179,20 +175,23 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: isStartButtonActive
                             ? () async {
-                                var result = await IndicatorService()
-                                    .sendTareToIndicator(MenuViews.pigment);
-                                if (result['success']) {
-                                  SnackbarHelper.showSnackbar(
-                                      context, "Dara Başarılı");
-                                } else {
-                                  String errorMessage = result['errorMessage'];
-                                  SnackbarHelper.showSnackbar(
-                                      context, errorMessage);
+                                if (_formKey.currentState!.saveAndValidate()) {
+                                  var result = await IndicatorService()
+                                      .sendTareToIndicator(MenuViews.pigment);
+                                  if (result['success']) {
+                                    SnackbarHelper.showSnackbar(
+                                        context, "Dara Başarılı");
+                                  } else {
+                                    String errorMessage =
+                                        result['errorMessage'];
+                                    SnackbarHelper.showSnackbar(
+                                        context, errorMessage);
+                                  }
+                                  setState(() {
+                                    isButtonActive = true;
+                                    isStartButtonActive = false;
+                                  });
                                 }
-                                setState(() {
-                                  isButtonActive = true;
-                                  isStartButtonActive = false;
-                                });
                               }
                             : null,
                         child: const Text('Başla'),
@@ -288,6 +287,9 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
+                                await BlueToothService.setDto(
+                                    getDetailDto(), MenuViews.pigment);
+
                                 await IndicatorService()
                                     .sendClearToIndicator(MenuViews.pigment);
 
@@ -302,7 +304,6 @@ class _PigmentViewState extends State<PigmentView> {
                                       context, errorMessage);
                                 }
 
-                                BlueToothService.setDto(getDetailDto());
                                 _finishWeighing();
                               }
                             : null,
@@ -377,8 +378,6 @@ class _PigmentViewState extends State<PigmentView> {
 
   void _finishWeighing() {
     setState(() {
-      _lineNo.clear();
-      _bacthNo.clear();
       _mixNo.clear();
       _qrCode.clear();
       isButtonActive = false;

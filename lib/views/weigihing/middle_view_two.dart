@@ -1,47 +1,55 @@
 import 'dart:async';
 
+import 'package:axalta/enums/menu_view.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
-import 'package:axalta/services/weight/packaged_product_service.dart';
+import 'package:axalta/services/indicators/indicator_service.dart';
 import 'package:axalta/services/weight/weight_service.dart';
 import 'package:axalta/views/snack_bar_helper.dart';
-import 'package:axalta/views/weigihing/detail_view_kaba.dart';
+import 'package:axalta/views/weigihing/detail_middle_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
-class KabaView extends StatefulWidget {
-  const KabaView({super.key});
+import '../../services/blue_tooth/blue_tooth_service.dart';
+
+class MiddeleViewTwo extends StatefulWidget {
+  const MiddeleViewTwo({super.key});
 
   @override
-  State<KabaView> createState() => _KabaViewState();
+  State<MiddeleViewTwo> createState() => _MiddeleViewTwoState();
 }
 
-class _KabaViewState extends State<KabaView> {
+class _MiddeleViewTwoState extends State<MiddeleViewTwo> {
   late final TextEditingController _lineNo;
   late final TextEditingController _bacthNo;
-  late final TextEditingController _mixNo;
+  late final TextEditingController _mixNoStart;
+  late final TextEditingController _mixNoFinish;
   late final TextEditingController _productNumber;
   late final TextEditingController _sequenceNo;
   late final TextEditingController _weight;
   late final TextEditingController _qrCode;
-  late final TextEditingController _quantity;
+  late final TextEditingController _currentMixNoController;
+  bool _isExtra = false;
   final FocusNode _focusNode = FocusNode();
   bool isButtonActive = false;
-  bool isStartButtonActive = true;
+  bool isStarButtonActive = true;
   Color _backgroundColor = Colors.transparent;
   String _qrCodeLabelText = "Ürün Barkodu Okut";
+  int _currentMixNo = 0;
 
   @override
   void initState() {
     _lineNo = TextEditingController();
     _bacthNo = TextEditingController();
-    _mixNo = TextEditingController();
+    _mixNoStart = TextEditingController();
+    _mixNoFinish = TextEditingController();
     _productNumber = TextEditingController();
     _sequenceNo = TextEditingController();
     _weight = TextEditingController();
     _qrCode = TextEditingController();
-    _quantity = TextEditingController();
+    _currentMixNoController = TextEditingController();
+    _currentMixNoController.text = _currentMixNo.toString();
     super.initState();
   }
 
@@ -49,12 +57,12 @@ class _KabaViewState extends State<KabaView> {
   void dispose() {
     _lineNo.dispose();
     _bacthNo.dispose();
-    _mixNo.dispose();
+    _mixNoStart.dispose();
     _productNumber.dispose();
     _sequenceNo.dispose();
     _weight.dispose();
     _qrCode.dispose();
-    _quantity.dispose();
+    _currentMixNoController.dispose();
     super.dispose();
   }
 
@@ -64,7 +72,7 @@ class _KabaViewState extends State<KabaView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Kaba Tartım"),
+        title: const Text("Ara Tartım 2"),
       ),
       body: FutureBuilder(
         future: createNewWeighing(),
@@ -85,8 +93,6 @@ class _KabaViewState extends State<KabaView> {
                   padding: const EdgeInsets.all(8.0),
                   child: FormBuilder(
                     key: _formKey,
-                    // height: 150,
-                    //color: Colors.grey[400],
                     child: Column(
                       children: [
                         FormBuilderTextField(
@@ -121,40 +127,75 @@ class _KabaViewState extends State<KabaView> {
                             FocusScope.of(context).nextFocus();
                           },
                         ),
-                        FormBuilderTextField(
-                          name: 'mixNo',
-                          controller: _mixNo,
-                          keyboardType: TextInputType.number,
-                          maxLines: null,
-                          decoration: const InputDecoration(
-                              labelText: "Mix No",
-                              contentPadding: EdgeInsets.all(8)),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                                errorText: "Bu alan boş bırakılımaz."),
-                          ]),
-                          onEditingComplete: () {
-                            FocusScope.of(context).nextFocus();
-                          },
-                        ),
-                        FormBuilderTextField(
-                          name: "quantity",
-                          controller: _quantity,
-                          keyboardType: TextInputType.number,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                            labelText: "Adet",
-                            contentPadding: const EdgeInsets.all(8),
-                            filled: true,
-                            fillColor: _backgroundColor,
-                          ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                                errorText: "Bu alan boş bırakılımaz."),
-                          ]),
-                          onEditingComplete: () {
-                            FocusScope.of(context).nextFocus();
-                          },
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 100,
+                              child: FormBuilderTextField(
+                                name: 'mixNoStart',
+                                controller: _mixNoStart,
+                                keyboardType: TextInputType.number,
+                                maxLines: null,
+                                decoration: const InputDecoration(
+                                    labelText: "Mix No",
+                                    contentPadding: EdgeInsets.all(8)),
+                                validator: FormBuilderValidators.compose([
+                                  FormBuilderValidators.required(
+                                      errorText: "Bu alan boş bırakılımaz."),
+                                ]),
+                                onEditingComplete: () {
+                                  FocusScope.of(context).nextFocus();
+                                },
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 16,
+                              child: Text("-"),
+                            ),
+                            SizedBox(
+                              width: 100,
+                              child: FormBuilderTextField(
+                                name: 'mixNoFinish',
+                                controller: _mixNoFinish,
+                                keyboardType: TextInputType.number,
+                                maxLines: null,
+                                decoration: const InputDecoration(
+                                    labelText: "Mix No",
+                                    contentPadding: EdgeInsets.all(8)),
+                                validator: FormBuilderValidators.compose([
+                                  FormBuilderValidators.required(
+                                      errorText: "Bu alan boş bırakılımaz."),
+                                ]),
+                                onEditingComplete: () {
+                                  FocusScope.of(context).nextFocus();
+                                },
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 16,
+                              child: Text("-"),
+                            ),
+                            SizedBox(
+                              width: 54,
+                              child: FormBuilderTextField(
+                                  name: 'currentMixNo',
+                                  controller: _currentMixNoController,
+                                  keyboardType: TextInputType.number,
+                                  maxLines: null,
+                                  decoration: const InputDecoration(
+                                      labelText: "Güncel",
+                                      contentPadding: EdgeInsets.all(8)),
+                                  onChanged: (value) {
+                                    if (_currentMixNoController.text != "") {
+                                      _currentMixNo = int.parse(
+                                          _currentMixNoController.text);
+                                    }
+                                  },
+                                  onEditingComplete: () {
+                                    FocusScope.of(context).nextFocus();
+                                  }),
+                            ),
+                          ],
                         ),
                         FormBuilderTextField(
                           name: "qrCode",
@@ -168,11 +209,16 @@ class _KabaViewState extends State<KabaView> {
                             filled: true,
                             fillColor: _backgroundColor,
                           ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                                errorText: "Bu alan boş bırakılımaz."),
-                          ]),
                         ),
+                        CheckboxListTile(
+                          title: const Text('İlave Tartım'),
+                          value: _isExtra,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              _isExtra = value ?? false;
+                            });
+                          },
+                        )
                       ],
                     ),
                   ),
@@ -186,12 +232,30 @@ class _KabaViewState extends State<KabaView> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: isStartButtonActive
+                        onPressed: isStarButtonActive
                             ? () async {
-                                setState(() {
-                                  isButtonActive = true;
-                                  isStartButtonActive = false;
-                                });
+                                if (_formKey.currentState!.saveAndValidate()) {
+                                  var result = await IndicatorService()
+                                      .sendTareToIndicator(
+                                          MenuViews.middleView2);
+                                  if (result['success']) {
+                                    SnackbarHelper.showSnackbar(
+                                        context, "Dara Başarılı");
+                                  } else {
+                                    String errorMessage =
+                                        result['errorMessage'];
+                                    SnackbarHelper.showSnackbar(
+                                        context, errorMessage);
+                                  }
+                                  _currentMixNo = int.parse(_mixNoStart.text);
+                                  _currentMixNoController.text =
+                                      _currentMixNo.toString();
+
+                                  setState(() {
+                                    isButtonActive = true;
+                                    isStarButtonActive = false;
+                                  });
+                                }
                               }
                             : null,
                         child: const Text('Başla'),
@@ -201,12 +265,15 @@ class _KabaViewState extends State<KabaView> {
                             ? () {
                                 if (_lineNo.text.isNotEmpty &&
                                     _bacthNo.text.isNotEmpty &&
-                                    _mixNo.text.isNotEmpty) {
+                                    _mixNoStart.text.isNotEmpty) {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => DetailViewKaba(
-                                          dto: getDetailDto(),
+                                        builder: (context) => DetailMiddeleView(
+                                          dto: getDetailDto(
+                                              int.parse(_mixNoStart.text)),
+                                          mixNoFinish:
+                                              int.parse(_mixNoFinish.text),
                                         ),
                                       ));
                                 }
@@ -219,7 +286,19 @@ class _KabaViewState extends State<KabaView> {
                             ? () async {
                                 if (_formKey.currentState!.saveAndValidate()) {
                                   await recordWeight(getWeighingDto());
-                                  _changeQrCodeBackgroundColor();
+                                  var result = await IndicatorService()
+                                      .sendTareToIndicator(
+                                          MenuViews.middleView2);
+                                  if (result['success']) {
+                                    SnackbarHelper.showSnackbar(
+                                        context, "Dara Başarılı");
+                                  } else {
+                                    String errorMessage =
+                                        result['errorMessage'];
+                                    SnackbarHelper.showSnackbar(
+                                        context, errorMessage);
+                                  }
+                                  _checkCurrentMixNo();
                                 }
                               }
                             : null,
@@ -232,7 +311,6 @@ class _KabaViewState extends State<KabaView> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
-                  height: 40,
                   color: Colors.grey[400],
                   child: DataTable(
                     headingRowHeight: 20,
@@ -276,17 +354,32 @@ class _KabaViewState extends State<KabaView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
-                                var result = await ApiService()
-                                    .finishRecord(getDetailDto());
+                                for (int i = int.parse(_mixNoStart.text);
+                                    i <= int.parse(_mixNoFinish.text);
+                                    i++) {
+                                  BlueToothService.setListDto(getDetailDto(i));
+                                }
+                                await BlueToothService.connectAndPrintList(
+                                    MenuViews.middleView2);
+
+                                for (int i = int.parse(_mixNoStart.text);
+                                    i <= int.parse(_mixNoFinish.text);
+                                    i++) {
+                                  await ApiService()
+                                      .finishRecord(getDetailDto(i));
+                                }
+
+                                var result = await IndicatorService()
+                                    .sendClearToIndicator(
+                                        MenuViews.middleView2);
                                 if (result['success']) {
                                   SnackbarHelper.showSnackbar(
-                                      context, "Kayıt İşlemi Başarılı");
+                                      context, "Clear Başarılı");
                                 } else {
                                   String errorMessage = result['errorMessage'];
                                   SnackbarHelper.showSnackbar(
                                       context, errorMessage);
                                 }
-
                                 _finishWeighing();
                               }
                             : null,
@@ -313,7 +406,7 @@ class _KabaViewState extends State<KabaView> {
   }
 
   Future recordWeight(WeighingProductDto dto) async {
-    var result = await PackagedProductService().postData(getWeighingDto());
+    var result = await ApiService().postData(dto, MenuViews.middleView2);
 
     setState(() {
       if (result['success']) {
@@ -323,16 +416,14 @@ class _KabaViewState extends State<KabaView> {
         SnackbarHelper.showSnackbar(context, errorMessage);
       }
     });
-    _qrCode.clear();
-    _quantity.clear();
   }
 
-  createNewWeighing() async {}
+  createNewWeighing() {}
 
-  WeighingDetailDto getDetailDto() {
+  WeighingDetailDto getDetailDto(int _mixNo) {
     return WeighingDetailDto(
         batchNo: _bacthNo.text,
-        mixNo: int.parse(_mixNo.text),
+        mixNo: _mixNo,
         lineNumber: int.parse(_lineNo.text));
   }
 
@@ -341,33 +432,48 @@ class _KabaViewState extends State<KabaView> {
         id: 1,
         lineNumber: int.parse(_lineNo.text),
         batchNo: _bacthNo.text,
-        mixNo: int.parse(_mixNo.text),
-        isExtra: false,
-        sequenceNumber: int.parse(_quantity.text),
+        mixNo: _currentMixNo,
+        isExtra: _isExtra,
+        sequenceNumber: 2,
         productNumber: _qrCode.text,
         weight: "22",
         isDone: false,
         indicatorId: 1);
   }
 
+  void _checkCurrentMixNo() {
+    _changeQrCodeBackgroundColor();
+
+    if (_currentMixNo == int.parse(_mixNoFinish.text)) {
+      _currentMixNo = int.parse(_mixNoStart.text) - 1;
+      _qrCode.clear();
+      setState(() {
+        _backgroundColor = Colors.yellow;
+      });
+    }
+    setState(() {
+      _currentMixNo++;
+      _currentMixNoController.text = (_currentMixNo.toString());
+    });
+  }
+
   void _changeQrCodeBackgroundColor() {
     setState(() {
       _backgroundColor = _backgroundColor == Colors.transparent
-          ? Colors.yellow
-          : Colors.yellow;
+          ? Colors.transparent
+          : Colors.transparent;
       _qrCodeLabelText = "Yeni Ürün Barkodu Okut";
     });
   }
 
   void _finishWeighing() {
     setState(() {
-      _lineNo.clear();
-      _bacthNo.clear();
-      _mixNo.clear();
+      _mixNoStart.clear();
+      _mixNoFinish.clear();
+      _currentMixNo = 0;
       _qrCode.clear();
-      _quantity.clear();
       isButtonActive = false;
-      isStartButtonActive = true;
+      isStarButtonActive = true;
       _backgroundColor = Colors.transparent;
       _qrCodeLabelText = "Ürün Barkodu Okut";
     });

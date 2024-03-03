@@ -168,16 +168,33 @@ class IndicatorService {
           indicatorId = values[0];
         });
         break;
+      default:
+        break;
     }
     return indicatorId;
   }
 
-  Future<String> getIndicatorNameById(int indicatorId) async {
+  Future<String> getIndicatorNameById(int indicatorId, MenuViews viewId) async {
     var result = await IndicatorService().getAllIndicators();
-
+    String indicatorName = "";
     if (result['success']) {
       indicators = result['indicators'];
     }
-    return indicators.firstWhere((x) => x.id == indicatorId).name;
+
+    switch (viewId) {
+      case MenuViews.pigment:
+      case MenuViews.middleView1:
+      case MenuViews.middleView2:
+        indicatorName = indicators.firstWhere((x) => x.id == indicatorId).name;
+        break;
+      case MenuViews.cumulative:
+        indicatorName = "Kümülatif Çıktı";
+        break;
+      case MenuViews.kaba:
+        indicatorName = "Kaba Tartım";
+        break;
+    }
+
+    return indicatorName;
   }
 }

@@ -178,20 +178,22 @@ class _MiddeleViewState extends State<MiddeleView> {
                             SizedBox(
                               width: 54,
                               child: FormBuilderTextField(
-                                name: 'currentMixNo',
-                                controller: _currentMixNoController,
-                                keyboardType: TextInputType.number,
-                                maxLines: null,
-                                decoration: const InputDecoration(
-                                    labelText: "Güncel",
-                                    contentPadding: EdgeInsets.all(8)),
-                                onChanged: (value) {
-                                  if (_currentMixNoController.text != "") {
-                                    _currentMixNo =
-                                        int.parse(_currentMixNoController.text);
-                                  }
-                                },
-                              ),
+                                  name: 'currentMixNo',
+                                  controller: _currentMixNoController,
+                                  keyboardType: TextInputType.number,
+                                  maxLines: null,
+                                  decoration: const InputDecoration(
+                                      labelText: "Güncel",
+                                      contentPadding: EdgeInsets.all(8)),
+                                  onChanged: (value) {
+                                    if (_currentMixNoController.text != "") {
+                                      _currentMixNo = int.parse(
+                                          _currentMixNoController.text);
+                                    }
+                                  },
+                                  onEditingComplete: () {
+                                    FocusScope.of(context).nextFocus();
+                                  }),
                             ),
                           ],
                         ),
@@ -207,10 +209,6 @@ class _MiddeleViewState extends State<MiddeleView> {
                             filled: true,
                             fillColor: _backgroundColor,
                           ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                                errorText: "Bu alan boş bırakılımaz."),
-                          ]),
                         ),
                         CheckboxListTile(
                           title: const Text('İlave Tartım'),
@@ -359,11 +357,18 @@ class _MiddeleViewState extends State<MiddeleView> {
                                 for (int i = int.parse(_mixNoStart.text);
                                     i <= int.parse(_mixNoFinish.text);
                                     i++) {
-                                  await ApiService()
-                                      .finishRecord(getDetailDto(i));
                                   BlueToothService.setListDto(getDetailDto(i));
                                 }
-                                BlueToothService.connectAndPrintList();
+                                await BlueToothService.connectAndPrintList(
+                                    MenuViews.middleView1);
+
+                                for (int i = int.parse(_mixNoStart.text);
+                                    i <= int.parse(_mixNoFinish.text);
+                                    i++) {
+                                  await ApiService()
+                                      .finishRecord(getDetailDto(i));
+                                }
+
                                 var result = await IndicatorService()
                                     .sendClearToIndicator(
                                         MenuViews.middleView1);
@@ -463,8 +468,6 @@ class _MiddeleViewState extends State<MiddeleView> {
 
   void _finishWeighing() {
     setState(() {
-      _lineNo.clear();
-      _bacthNo.clear();
       _mixNoStart.clear();
       _mixNoFinish.clear();
       _currentMixNo = 0;
