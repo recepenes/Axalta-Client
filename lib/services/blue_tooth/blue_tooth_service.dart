@@ -27,6 +27,13 @@ class BlueToothService {
     }
   }
 
+  static Future connectAndPrintCumulative(WeighingDetailDto dto) async {
+    await setConnet(devices[0]);
+    if (getStatus()) {
+      await printTicketCumulative(dto);
+    }
+  }
+
   static Future connectAndPrintList() async {
     await setConnet(devices[0]);
     if (getStatus()) {
@@ -37,7 +44,8 @@ class BlueToothService {
     }
   }
 
-  static void setDto(WeighingDetailDto dto) => connectAndPrint(dto);
+  static Future setDto(WeighingDetailDto dto) async =>
+      await connectAndPrint(dto);
 
   static void setListDto(WeighingDetailDto dto) => tempDto.add(dto);
 
@@ -122,7 +130,79 @@ class BlueToothService {
 
       // bytes += generator.imageRaster(thumbnail, align: PosAlign.center);
 
-      bytes += generator.text('Sira   Ürün No                   Miktar',
+      bytes += generator.text('Sira   Ürün No                   Miktar(kg)',
+          styles: const PosStyles(align: PosAlign.left));
+      for (var x in reports) {
+        bytes += generator.text(
+            '${x.sequenceNumber}${addWhiteSpaceBySequence(x.sequenceNumber.toString())}${convertTurkishToEnglish(x.productNumber)}${addWhiteSpace(x.productNumber.toString())}${x.weight}',
+            styles: const PosStyles(align: PosAlign.left));
+      }
+
+      bytes += generator.reset();
+      // bytes += generator.setGlobalCodeTable('CP1252');
+      bytes += generator.feed(1);
+
+      bytes += generator.qrcode(
+          '${reportRoute}lineNumber=$lineNumber&batchNo=$batchNo&mixNo=$mixNo',
+          size: QRSize.Size4);
+      bytes += generator.feed(2);
+
+      final resp = await printer.printData(bytes, address: address);
+      if (!resp.success) {
+        connected = false;
+      } else {}
+      devtools.log("bt info: " + resp.message);
+    } catch (e) {
+      connected = false;
+      devtools.log("Yazdırılamadı");
+    }
+  }
+
+  static Future<void> printTicketCumulative(WeighingDetailDto dto) async {
+    try {
+      String address = device!.address;
+
+      final profile = await CapabilityProfile.load();
+      final generator = Generator(PaperSize.mm80, profile);
+      List<int> bytes = [];
+
+      List<WeighingProductDto> reports =
+          (await DetailService().getDetailsCumulative(dto))["details"];
+
+      if (reports.isEmpty) {
+        devtools.log("Rapor detayı bulunamadı");
+        return;
+      }
+
+      var lineNumber = reports[0].lineNumber;
+      var batchNo = reports[0].batchNo;
+      var mixNo = reports[0].mixNo;
+
+      bytes += generator.text("Tarih Saat:" + DateTime.now().toString(),
+          styles: const PosStyles(align: PosAlign.left));
+
+      var operatorName = "";
+      var result = await AuthService().getUserName();
+      if (result['success']) {
+        operatorName = result['user'];
+      }
+      bytes += generator.text(
+          "Operator: ${convertTurkishToEnglish(operatorName)}",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text(
+          "Tarti: ${convertTurkishToEnglish(await IndicatorService().getIndicatorNameById(reports[0].indicatorId))}",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text('Hat No: $lineNumber',
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text("Batch No: ${convertTurkishToEnglish(batchNo)}",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text("Mix No: $mixNo",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.feed(1);
+
+      // bytes += generator.imageRaster(thumbnail, align: PosAlign.center);
+
+      bytes += generator.text('Sira   Ürün No                   Miktar(kg)',
           styles: const PosStyles(align: PosAlign.left));
       for (var x in reports) {
         bytes += generator.text(

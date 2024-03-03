@@ -1,6 +1,6 @@
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/services/blue_tooth/blue_tooth_service.dart';
-import 'package:axalta/views/weigihing/detail_view.dart';
+import 'package:axalta/views/weigihing/detail_view_cumulative.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -118,7 +118,7 @@ class _CumulativeViewState extends State<CumulativeView> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => DetailView(
+                                  builder: (context) => DetailViewCumulative(
                                     dto: getDetailDto(),
                                   ),
                                 ));
@@ -129,7 +129,8 @@ class _CumulativeViewState extends State<CumulativeView> {
                       ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.saveAndValidate()) {
-                            BlueToothService.setDto(getDetailDto());
+                            BlueToothService.connectAndPrintCumulative(
+                                getDetailDto());
                           }
                         },
                         child: const Text('Çıktı Al'),

@@ -178,20 +178,22 @@ class _MiddeleViewState extends State<MiddeleView> {
                             SizedBox(
                               width: 54,
                               child: FormBuilderTextField(
-                                name: 'currentMixNo',
-                                controller: _currentMixNoController,
-                                keyboardType: TextInputType.number,
-                                maxLines: null,
-                                decoration: const InputDecoration(
-                                    labelText: "Güncel",
-                                    contentPadding: EdgeInsets.all(8)),
-                                onChanged: (value) {
-                                  if (_currentMixNoController.text != "") {
-                                    _currentMixNo =
-                                        int.parse(_currentMixNoController.text);
-                                  }
-                                },
-                              ),
+                                  name: 'currentMixNo',
+                                  controller: _currentMixNoController,
+                                  keyboardType: TextInputType.number,
+                                  maxLines: null,
+                                  decoration: const InputDecoration(
+                                      labelText: "Güncel",
+                                      contentPadding: EdgeInsets.all(8)),
+                                  onChanged: (value) {
+                                    if (_currentMixNoController.text != "") {
+                                      _currentMixNo = int.parse(
+                                          _currentMixNoController.text);
+                                    }
+                                  },
+                                  onEditingComplete: () {
+                                    FocusScope.of(context).nextFocus();
+                                  }),
                             ),
                           ],
                         ),
@@ -359,11 +361,17 @@ class _MiddeleViewState extends State<MiddeleView> {
                                 for (int i = int.parse(_mixNoStart.text);
                                     i <= int.parse(_mixNoFinish.text);
                                     i++) {
-                                  await ApiService()
-                                      .finishRecord(getDetailDto(i));
                                   BlueToothService.setListDto(getDetailDto(i));
                                 }
-                                BlueToothService.connectAndPrintList();
+                                await BlueToothService.connectAndPrintList();
+
+                                for (int i = int.parse(_mixNoStart.text);
+                                    i <= int.parse(_mixNoFinish.text);
+                                    i++) {
+                                  await ApiService()
+                                      .finishRecord(getDetailDto(i));
+                                }
+
                                 var result = await IndicatorService()
                                     .sendClearToIndicator(
                                         MenuViews.middleView1);

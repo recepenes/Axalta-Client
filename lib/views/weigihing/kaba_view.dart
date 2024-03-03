@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:axalta/enums/menu_view.dart';
 import 'package:axalta/model/weighing_detail_dto.dart';
 import 'package:axalta/model/weighing_product_dto.dart';
 import 'package:axalta/services/weight/packaged_product_service.dart';
@@ -10,8 +9,6 @@ import 'package:axalta/views/weigihing/detail_view_kaba.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-
-import '../../services/blue_tooth/blue_tooth_service.dart';
 
 class KabaView extends StatefulWidget {
   const KabaView({super.key});
@@ -279,7 +276,17 @@ class _KabaViewState extends State<KabaView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
-                                BlueToothService.setDto(getDetailDto());
+                                var result = await ApiService()
+                                    .finishRecord(getDetailDto());
+                                if (result['success']) {
+                                  SnackbarHelper.showSnackbar(
+                                      context, "Kayıt İşlemi Başarılı");
+                                } else {
+                                  String errorMessage = result['errorMessage'];
+                                  SnackbarHelper.showSnackbar(
+                                      context, errorMessage);
+                                }
+
                                 _finishWeighing();
                               }
                             : null,

@@ -288,6 +288,8 @@ class _PigmentViewState extends State<PigmentView> {
                       ElevatedButton(
                         onPressed: isButtonActive
                             ? () async {
+                               await BlueToothService.setDto(getDetailDto());
+
                                 await IndicatorService()
                                     .sendClearToIndicator(MenuViews.pigment);
 
@@ -302,7 +304,6 @@ class _PigmentViewState extends State<PigmentView> {
                                       context, errorMessage);
                                 }
 
-                                BlueToothService.setDto(getDetailDto());
                                 _finishWeighing();
                               }
                             : null,
