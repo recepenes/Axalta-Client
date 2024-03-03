@@ -122,7 +122,10 @@ class _HomeViewState extends State<HomeView> {
                               width: width, // <-- Your width
                               height: height, // <-- Your height
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pushNamed(middleTwoRoute);
+                                },
                                 style: ElevatedButton.styleFrom(
                                     textStyle: const TextStyle(
                                         fontSize: 20,

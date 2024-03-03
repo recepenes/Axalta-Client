@@ -209,10 +209,6 @@ class _MiddeleViewState extends State<MiddeleView> {
                             filled: true,
                             fillColor: _backgroundColor,
                           ),
-                          validator: FormBuilderValidators.compose([
-                            FormBuilderValidators.required(
-                                errorText: "Bu alan boş bırakılımaz."),
-                          ]),
                         ),
                         CheckboxListTile(
                           title: const Text('İlave Tartım'),
@@ -471,8 +467,6 @@ class _MiddeleViewState extends State<MiddeleView> {
 
   void _finishWeighing() {
     setState(() {
-      _lineNo.clear();
-      _bacthNo.clear();
       _mixNoStart.clear();
       _mixNoFinish.clear();
       _currentMixNo = 0;

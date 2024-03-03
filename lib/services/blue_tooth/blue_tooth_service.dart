@@ -202,7 +202,7 @@ class BlueToothService {
 
       // bytes += generator.imageRaster(thumbnail, align: PosAlign.center);
 
-      bytes += generator.text('Sira   Ürün No                   Miktar(kg)',
+      bytes += generator.text('Sira   Ürün No               Miktar(kg)',
           styles: const PosStyles(align: PosAlign.left));
       for (var x in reports) {
         bytes += generator.text(

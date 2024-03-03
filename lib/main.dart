@@ -10,6 +10,7 @@ import 'package:axalta/views/register/update_password_view.dart';
 import 'package:axalta/views/weigihing/cumulative_view.dart';
 import 'package:axalta/views/weigihing/kaba_view.dart';
 import 'package:axalta/views/weigihing/middle_view.dart';
+import 'package:axalta/views/weigihing/middle_view_two.dart';
 import 'package:axalta/views/weigihing/pigment_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,6 +56,7 @@ class App extends StatelessWidget {
           indicatorRoute: (context) => const IndicatorView(),
           cumulativeRoute: (context) => const CumulativeView(),
           middleRoute: (context) => const MiddeleView(),
+          middleTwoRoute: (context) => const MiddeleViewTwo(),
           changePasswordRoute: (context) => const UpdatePasswordView(),
           kabaRoute: (context) => const KabaView(),
         },
