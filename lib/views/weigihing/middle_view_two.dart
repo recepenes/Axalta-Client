@@ -255,6 +255,7 @@ class _MiddeleViewTwoState extends State<MiddeleViewTwo> {
                                     isButtonActive = true;
                                     isStarButtonActive = false;
                                   });
+                                  BlueToothService.clearLastRecord();
                                 }
                               }
                             : null,
@@ -350,6 +351,13 @@ class _MiddeleViewTwoState extends State<MiddeleViewTwo> {
                               }
                             : null,
                         child: const Text('Duraklat'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await BlueToothService.lastPrintTicket(
+                              MenuViews.pigment);
+                        },
+                        child: const Text('E. Tekrar'),
                       ),
                       ElevatedButton(
                         onPressed: isButtonActive

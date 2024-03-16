@@ -22,6 +22,10 @@ class BlueToothService {
   static FpBtPrinter printer = FpBtPrinter();
 
   static Future connectAndPrint(WeighingDetailDto dto, MenuViews viewId) async {
+    List<WeighingProductDto> reports =
+        (await DetailService().getDetails(dto))["details"];
+    resultMap[dto] = reports;
+
     await setConnet(devices[0]);
     if (getStatus()) {
       await printTicket(dto, viewId);
@@ -36,6 +40,12 @@ class BlueToothService {
   }
 
   static Future connectAndPrintList(MenuViews viewId) async {
+    for (WeighingDetailDto x in tempDto) {
+      List<WeighingProductDto> reports =
+          (await DetailService().getDetails(x))["details"];
+      resultMap[x] = reports;
+    }
+
     await setConnet(devices[0]);
     if (getStatus()) {
       for (WeighingDetailDto x in tempDto) {
@@ -87,6 +97,14 @@ class BlueToothService {
     }
   }
 
+  static void clearLastRecord() {
+    resultMap.clear();
+  }
+
+  static List<WeighingProductDto> lastRecord = [];
+
+  static Map<WeighingDetailDto, List<WeighingProductDto>> resultMap = {};
+
   static Future<void> printTicket(
       WeighingDetailDto dto, MenuViews viewId) async {
     try {
@@ -98,6 +116,8 @@ class BlueToothService {
 
       List<WeighingProductDto> reports =
           (await DetailService().getDetails(dto))["details"];
+
+      // resultMap[dto] = reports;
 
       if (reports.isEmpty) {
         devtools.log("Rapor detayı bulunamadı");
@@ -205,6 +225,93 @@ class BlueToothService {
       // bytes += generator.imageRaster(thumbnail, align: PosAlign.center);
 
       bytes += generator.text('Sira   Ürün No               Miktar(kg)',
+          styles: const PosStyles(align: PosAlign.left));
+      for (var x in reports) {
+        bytes += generator.text(
+            '${x.sequenceNumber}${addWhiteSpaceBySequence(x.sequenceNumber.toString())}${convertTurkishToEnglish(x.productNumber)}${addWhiteSpace(x.productNumber.toString())}${x.weight}',
+            styles: const PosStyles(align: PosAlign.left));
+      }
+
+      bytes += generator.reset();
+      // bytes += generator.setGlobalCodeTable('CP1252');
+      bytes += generator.feed(1);
+
+      bytes += generator.qrcode(
+          '${reportRoute}lineNumber=$lineNumber&batchNo=$batchNo&mixNo=$mixNo',
+          size: QRSize.Size4);
+      bytes += generator.feed(2);
+
+      final resp = await printer.printData(bytes, address: address);
+      if (!resp.success) {
+        connected = false;
+      } else {}
+      devtools.log("bt info: " + resp.message);
+    } catch (e) {
+      connected = false;
+      devtools.log("Yazdırılamadı");
+    }
+  }
+
+  static Future lastPrintTicket(MenuViews viewId) async {
+    await setConnet(devices[0]);
+    if (getStatus()) {
+      //for (WeighingProductDto x in lastRecord) {
+
+      for (var key in resultMap.keys) {
+        var value = resultMap[key];
+        await printLastTicket(value!, viewId);
+      }
+      resultMap.clear();
+
+      //}
+    }
+  }
+
+  static Future<void> printLastTicket(
+      List<WeighingProductDto> dto, MenuViews viewId) async {
+    try {
+      String address = device!.address;
+
+      final profile = await CapabilityProfile.load();
+      final generator = Generator(PaperSize.mm80, profile);
+      List<int> bytes = [];
+
+      List<WeighingProductDto> reports = dto;
+
+      if (reports.isEmpty) {
+        devtools.log("Rapor detayı bulunamadı");
+        return;
+      }
+
+      var lineNumber = reports[0].lineNumber;
+      var batchNo = reports[0].batchNo;
+      var mixNo = reports[0].mixNo;
+
+      bytes += generator.text("Tarih Saat:" + DateTime.now().toString(),
+          styles: const PosStyles(align: PosAlign.left));
+
+      var operatorName = "";
+      var result = await AuthService().getUserName();
+      if (result['success']) {
+        operatorName = result['user'];
+      }
+      bytes += generator.text(
+          "Operator: ${convertTurkishToEnglish(operatorName)}",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text(
+          "Tarti: ${convertTurkishToEnglish(await IndicatorService().getIndicatorNameById(reports[0].indicatorId, viewId))}",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text('Hat No: $lineNumber',
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text("Batch No: ${convertTurkishToEnglish(batchNo)}",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.text("Mix No: $mixNo",
+          styles: const PosStyles(align: PosAlign.left));
+      bytes += generator.feed(1);
+
+      // bytes += generator.imageRaster(thumbnail, align: PosAlign.center);
+
+      bytes += generator.text('Sira   Ürün No                   Miktar(kg)',
           styles: const PosStyles(align: PosAlign.left));
       for (var x in reports) {
         bytes += generator.text(
