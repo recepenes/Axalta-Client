@@ -191,6 +191,7 @@ class _PigmentViewState extends State<PigmentView> {
                                     isButtonActive = true;
                                     isStartButtonActive = false;
                                   });
+                                  BlueToothService.clearLastRecord();
                                 }
                               }
                             : null,
@@ -283,6 +284,13 @@ class _PigmentViewState extends State<PigmentView> {
                               }
                             : null,
                         child: const Text('Duraklat'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await BlueToothService.lastPrintTicket(
+                              MenuViews.pigment);
+                        },
+                        child: const Text('E. Tekrar'),
                       ),
                       ElevatedButton(
                         onPressed: isButtonActive
